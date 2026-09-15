@@ -190,6 +190,9 @@
   table.rpt td.up{color:#C0392B;font-weight:700}
   table.rpt td.dn{color:#1F6FB2;font-weight:700}
   table.rpt td.na{color:#BFC6CE}
+  table.rpt thead th .mk{color:#FFD27F;font-weight:800}
+  table.rpt td .uniq{display:inline-block;margin-left:5px;padding:1px 5px;border-radius:3px;
+        background:var(--navy);color:#fff;font-size:9px;font-weight:700;vertical-align:1px}
 
   .rptfoot{margin-top:18px;padding:13px 16px;background:#F7F9FB;
         border-left:3px solid #C9D3DE;border-radius:0 6px 6px 0;
@@ -1407,9 +1410,11 @@ function renderReport(){
 
   /* 모델별 이용 현황 */
   let body = "";
+  let rowUserSum = 0;                 // 행별 이용자 수의 단순 합 (계와 다를 수 있음)
   for (const g of RPT_GROUPS){
     g.rows.forEach((row, i) => {
       const c = rptCell(mi, g, row);
+      if (c.u != null) rowUserSum += c.u;
       const p = pi >= 0 ? rptCell(pi, g, row) : null;
       body += "<tr>"
         + (i === 0 ? `<td class="lbl grp" data-c="0" rowspan="${g.rows.length}">${escapeHtml(g.name)}</td>` : "")
@@ -1422,12 +1427,13 @@ function renderReport(){
   }
   body += '<tr class="sum"><td class="lbl sep" data-c="0" colspan="2">계</td>'
        + `<td class="num" data-c="2">${fmt(cur.q)}</td>`
-       + `<td class="num" data-c="3">${cur.u == null ? "—" : fmt(cur.u)}</td>`
+       + `<td class="num" data-c="3">${cur.u == null ? "—" : fmt(cur.u)}`
+       + `${cur.u == null ? "" : '<span class="uniq">고유</span>'}</td>`
        + `<td class="num" data-c="4">${per1(cur.q, cur.u)}</td>`
        + diffCell(cur.q, prev ? prev.q : null, 5) + "</tr>";
   $("#rpt2").innerHTML =
     '<thead><tr><th style="width:15%" data-c="0">구분</th><th style="width:15%" data-c="1">AI 모델</th>'
-    + '<th data-c="2">질의 건 수</th><th data-c="3">이용자 수</th><th data-c="4">1인당 질의 수</th><th data-c="5">전월 대비</th>'
+    + '<th data-c="2">질의 건 수</th><th data-c="3">이용자 수 <span class=\"mk\">†</span></th><th data-c="4">1인당 질의 수</th><th data-c="5">전월 대비</th>'
     + `</tr></thead><tbody>${body}</tbody>`;
 
   /* 각주 */
@@ -1441,6 +1447,12 @@ function renderReport(){
           + ` 당월 식별 ${fmt(cur.uniq)}명 + 비로그인 ${fmt(cur.anon)}건.<br>`
         : "※ <b>실 사용자 수</b> — 로그에 <b>식별번호 컬럼이 없어</b> 계산할 수 없습니다."
           + " 식별번호가 포함된 로그를 넣으면 자동 계산됩니다.<br>")
+    + (cur.u != null && rowUserSum !== cur.u
+        ? `※ <b>† 이용자 수는 더해지지 않습니다.</b> 행 합계 ${fmt(rowUserSum)} ≠ 계 ${fmt(cur.u)}`
+          + ` (차이 ${fmt(Math.abs(rowUserSum - cur.u))}).`
+          + ` 한 사람이 여러 모델·채널을 함께 쓰면 각 행에 들어가지만 <b>계에서는 1명</b>으로 셉니다.`
+          + ` 질의 건수는 정상적으로 합산됩니다.<br>`
+        : "")
     + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미).<br>"
     + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
     + "※ <b>계</b> 는 위 표의 채널만 더한 값입니다. 보고에서 빠진 채널 "
