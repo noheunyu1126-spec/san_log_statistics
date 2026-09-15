@@ -12,11 +12,13 @@
     --bg:#F4F6F8; --panel:#fff; --ink:#1a1a1a; --ink-2:#5b6570; --zero:#c4c9ce;
   }
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   body{margin:0;background:var(--bg);color:var(--ink);
        font:13px/1.5 "Malgun Gothic","맑은 고딕",-apple-system,Segoe UI,sans-serif}
   .wrap{max-width:100%;padding:16px}
   h1{margin:0 0 2px;font-size:19px;letter-spacing:-.02em}
-  .sub{color:var(--ink-2);font-size:12px;margin-bottom:14px}
+  .sub{font-size:13px;font-weight:700;color:var(--navy);margin:2px 0 1px}
+  .sub2{color:var(--ink-2);font-size:11px;margin-bottom:14px}
 
   .panel{background:var(--panel);border:1px solid var(--bd-l);border-radius:8px;
          padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
@@ -25,23 +27,39 @@
   label{display:block;font-size:11px;color:var(--ink-2);margin-bottom:3px;font-weight:600}
   input[type=text],select,textarea{width:100%;padding:7px 9px;border:1px solid var(--bd);
          border-radius:5px;font:inherit;background:#fff;color:var(--ink)}
+  #drop{border:2px dashed var(--bd);border-radius:8px;padding:20px 14px;text-align:center;
+        background:#fafbfc;transition:background .12s,border-color .12s;margin-bottom:12px}
+  #drop.over{border-color:var(--navy);background:#eef4fa}
+  #drop b{font-size:14px}
+  #drop.hide{display:none}
+  .dropnote{font-size:11px;color:var(--ink-2);margin:6px 0 0}
   .srctop{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
   .srctop #status{flex:1;min-width:240px;margin-top:0}
+  .chipwrap{margin-bottom:10px}
+  .chiplabel{font-size:11px;color:var(--ink-2);margin-bottom:6px}
+  .chiplabel b{color:var(--navy)}
   #chips{display:flex;gap:6px;flex-wrap:wrap}
-  .chip{padding:6px 11px;border:1px solid var(--bd);background:#fff;color:var(--ink);
-        border-radius:999px;font-size:12px;font-weight:600;display:inline-flex;
-        gap:6px;align-items:center}
+  .chip{padding:5px 12px;border:1px solid var(--bd);background:#fff;color:var(--ink);
+        border-radius:8px;font:inherit;font-size:12px;cursor:pointer;text-align:left;
+        display:inline-flex;flex-direction:column;gap:1px;line-height:1.3}
+  .chip .nm{font-weight:700}
   .chip:hover{background:#eef4fa;border-color:var(--navy)}
   .chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
-  .chip .cnt{font-size:10px;font-weight:500;opacity:.7;font-variant-numeric:tabular-nums}
-  .chip[aria-pressed=true] .cnt{opacity:.85}
+  .chip .cnt{font-size:10px;font-weight:400;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .chip .cnt b{font-weight:700}
+  .chip[aria-pressed=true] .cnt{color:#dce9f5}
   td.cid{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-2)}
+  td.mg{vertical-align:top;background:#fff;font-weight:600;
+        border-bottom:1px solid var(--bd);box-shadow:inset 0 -1px 0 var(--bd)}
   #srcstat{margin-top:8px;font-size:11px;display:none}
   #srcstat.on{display:block}
   #srcstat table{border-collapse:collapse;font-size:11px}
   #srcstat td{border:1px solid var(--bd-l);padding:3px 8px;white-space:nowrap}
   #srcstat td.n{text-align:right;font-variant-numeric:tabular-nums}
   #srcstat td.bad{color:#8a1c1c}
+  .dupwarn{background:#fdecec;border:1px solid #f3c2c2;color:#8a1c1c;
+        border-radius:5px;padding:9px 11px;margin-bottom:8px;font-size:12px;line-height:1.6}
+  .srcsum{margin-top:5px;color:var(--ink-2)}
   input:focus,select:focus,textarea:focus{outline:2px solid rgba(31,78,121,.35);outline-offset:-1px;border-color:var(--navy)}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
   button{padding:8px 15px;border:1px solid var(--navy);background:var(--navy);color:#fff;
@@ -64,7 +82,15 @@
   .card{background:var(--panel);border:1px solid var(--bd-l);border-radius:8px;padding:11px 13px}
   .card .k{font-size:11px;color:var(--ink-2);font-weight:600}
   .card .v{font-size:19px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .card .v .u{font-size:12px;font-weight:600;margin-left:1px;color:var(--ink-2)}
+  .card .d{font-size:10px;color:var(--ink-2);margin-top:4px;line-height:1.45}
 
+  .tabs{display:flex;gap:4px;margin-bottom:12px;border-bottom:2px solid var(--bd-l)}
+  .tabs button{border:1px solid var(--bd-l);border-bottom:0;background:#eef1f4;color:var(--ink-2);
+        border-radius:7px 7px 0 0;padding:8px 18px;font-size:13px;font-weight:700;
+        margin-bottom:-2px;cursor:pointer}
+  .tabs button:hover{background:#e3e9ef;color:var(--ink)}
+  .tabs button[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:#fff}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .seg{display:inline-flex;border:1px solid var(--navy);border-radius:5px;overflow:hidden}
   .seg button{border:0;border-radius:0;background:#fff;color:var(--navy);padding:7px 13px}
@@ -94,13 +120,47 @@
   td.tot,th.tot{font-weight:700;border-left:2px solid var(--red)}
   /* 좌측 그룹 열 고정 */
   .stick{position:sticky;background:#fff;z-index:2}
-  thead .stick{z-index:4}
+  thead .stick{z-index:6;background:var(--navy);color:#fff}
+  /* 전체 총계 / 누적 총계 행은 세로 스크롤과 무관하게 하단 고정 */
+  tr.total td, tr.cumul td{position:sticky;z-index:4}
+  tr.total td.stick, tr.cumul td.stick{z-index:5}
+  tr.total td{box-shadow:inset 0 1px 0 var(--bd)}
   tr.sub-fam .stick{background:var(--f-fam)}
   tr.sub-id  .stick{background:var(--f-id)}
   tr.sub-nm  .stick{background:var(--f-nm)}
   tr.total   .stick{background:var(--f-tot)}
   tr.cumul   .stick{background:var(--f-cum)}
+  .fold{cursor:pointer;margin-right:5px;font-size:12px;line-height:1;
+        user-select:none;opacity:.75}
+  .fold:hover{opacity:1}
+  #depth button{font-size:12px;padding:7px 11px}
   .empty-wk{opacity:.55}
+  /* 오늘이 포함된 주차 열 강조 — 배경색을 덮지 않고 위에 얇게 덧칠 */
+  thead th.cur{background:#0E7C5A}
+  thead th.cur .badge{display:inline-block;margin-left:4px;padding:0 4px;border-radius:3px;
+        background:#fff;color:#0E7C5A;font-size:9px;font-weight:800;vertical-align:1px}
+  td.cur{background-image:linear-gradient(rgba(14,124,90,.13),rgba(14,124,90,.13));
+        border-left:2px solid #0E7C5A;border-right:2px solid #0E7C5A;font-weight:700}
+  thead th.cur{border-left:2px solid #0E7C5A;border-right:2px solid #0E7C5A}
+  .rptbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .rptbar select{width:auto;padding:7px 10px}
+  .rptnote{font-size:11px;color:var(--ink-2)}
+  .rptdoc{background:#fff;border:1px solid var(--bd-l);border-radius:8px;padding:20px 22px}
+  .rptdoc h3{margin:0 0 8px;font-size:14px;color:#2F5496}
+  .rptdoc h3+table{margin-bottom:22px}
+  table.rpt{border-collapse:collapse;width:100%;max-width:900px;font-size:13px}
+  table.rpt th,table.rpt td{border:1px solid #7F7F7F;padding:6px 10px;text-align:center;
+        white-space:nowrap}
+  table.rpt thead th{background:#DEEAF6;font-weight:700;border-top:2px solid #000;
+        border-bottom:1px solid #000}
+  table.rpt tbody tr:last-child td{border-bottom:2px solid #000}
+  table.rpt td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.rpt td.lbl{background:#fff;font-weight:600}
+  table.rpt tr.sum td{background:#F2F2F2;font-weight:700}
+  table.rpt td.up{color:#C00000}
+  table.rpt td.dn{color:#1F4E79}
+  table.rpt td.na{color:#9AA3AB}
+  .rptfoot{font-size:11px;color:var(--ink-2);margin-top:6px;line-height:1.7}
   details.notes{margin-top:12px;font-size:12px;color:var(--ink-2)}
   details.notes summary{cursor:pointer;font-weight:600;color:var(--navy)}
   details.notes ul{margin:8px 0 0;padding-left:18px;line-height:1.75}
@@ -109,33 +169,74 @@
 <body>
 <div class="wrap">
   <h1>주차별 질의답변수 집계표</h1>
-  <div class="sub">토요일 시작 ~ 다음 주 금요일 마감 · 채널 ID 기준 집계 · 채널명 현행화 · 중복 제거 없음</div>
+  <div class="sub" id="period">데이터를 읽는 중…</div>
+  <div class="sub2">토요일 시작 ~ 다음 주 금요일 마감 · 채널 ID 기준 집계 · 채널명 현행화 · 중복 제거 없음</div>
 
   <div class="panel" id="srcpanel">
+    <div id="drop">
+      <b id="dropTitle">로그데이터.xlsx 를 여기로 끌어다 놓으세요</b>
+      <div class="dropnote" id="dropNote">또는 아래 버튼으로 직접 고르세요 · 파일은 브라우저 안에서만 처리되며 어디로도 전송되지 않습니다</div>
+      <div class="row" style="justify-content:center">
+        <button id="pick">파일 선택</button>
+      </div>
+    </div>
     <div class="srctop">
       <div id="status"></div>
       <div class="row" style="margin:0">
-        <button id="reload" class="ghost">새로고침</button>
+        <button id="reload" class="ghost" disabled>새로고침</button>
+        <button id="xlsx" class="ghost" disabled>엑셀 내려받기</button>
         <button id="csv" class="ghost" disabled>CSV 내려받기</button>
         <select id="tz" style="width:auto">
           <option value="utc">원본 UTC</option>
           <option value="kst">원본 KST</option>
         </select>
-        <button id="pick" class="ghost">다른 파일 선택</button>
-        <input type="file" id="files" multiple accept=".csv,.txt,.xlsx" hidden>
+        <button id="pick2" class="ghost">다른 파일 선택</button>
       </div>
     </div>
+    <input type="file" id="files" multiple accept=".xlsx,.csv,.txt" hidden>
     <div id="srcstat"></div>
   </div>
 
   <div id="out" hidden>
+    <div class="tabs" id="tabs">
+      <button data-p="week" aria-pressed="true">📅 주차별</button>
+      <button data-p="month" aria-pressed="false">🗓️ 월별</button>
+      <button data-p="report" aria-pressed="false">📋 월간 보고</button>
+    </div>
     <div class="cards" id="cards"></div>
-    <div class="toolbar">
+    <div class="chipwrap">
+      <div class="chiplabel">채널 그룹 — 버튼의 숫자는 <b>채널 수 / 질의답변수</b></div>
       <div id="chips"></div>
+    </div>
+    <div id="mainview">
+    <div class="toolbar">
+      <div class="seg" id="depth">
+        <button data-d="chan" title="채널 소계만 보기">📁 채널</button>
+        <button data-d="fam"  title="계열 소계까지 보기">📂 계열</button>
+        <button data-d="model" aria-pressed="true" title="모든 모델 행 보기">📄 모델</button>
+      </div>
       <div class="spacer"></div>
       <input type="text" id="q" placeholder="채널명 / 채널 ID / 모델 검색" style="max-width:240px">
     </div>
     <div class="tablebox"><table id="tbl"></table></div>
+    </div>
+
+    <div id="reportview" hidden>
+      <div class="rptbar">
+        <label for="rmonth" style="margin:0">보고 대상 월</label>
+        <select id="rmonth"></select>
+        <button id="rxlsx" class="ghost">엑셀 내려받기</button>
+        <span class="rptnote" id="rscope"></span>
+      </div>
+      <div class="rptdoc">
+        <h3>가. 총괄표</h3>
+        <table class="rpt" id="rpt1"></table>
+        <h3>나. 모델별 이용 현황</h3>
+        <table class="rpt" id="rpt2"></table>
+        <div class="rptfoot" id="rfoot"></div>
+      </div>
+    </div>
+
     <details class="notes">
       <summary>집계 기준</summary>
       <ul id="notes"></ul>
@@ -148,6 +249,9 @@
 "use strict";
 const $ = s => document.querySelector(s);
 const NEED = ["Chat ID","채널 ID","채널명","생성일시","AI 모델"];
+/* 선택 컬럼 — 있으면 이용자/실사용자 수를 정확히 계산한다.
+   PNU 도우미처럼 비로그인 이용이 가능한 채널은 빈칸으로 오며, 빈칸은 행마다 1명으로 센다. */
+const UIDCOL = ["식별번호", "이용자 식별번호", "사용자 식별번호", "user id", "uid"];
 const TOTCOL = "전체 누적 합계", BAND = "질의답변수";
 const LS = "pnu-week-agg-cfg";
 
@@ -155,7 +259,14 @@ let FILES = [];        // 마지막으로 선택한 File 객체들 (다시 집�
 
 /* ---------- 상태 ---------- */
 let STATE = null;      // 집계 결과
-let GROUP = "전체";    // 채널 그룹 필터
+let GROUP = "전체";
+let FOCUSED = false;   // 첫 렌더에서만 오늘 주차로 이동
+const FOLD_CH  = new Set();   // 접힌 채널명
+const FOLD_FAM = new Set();   // 접힌 "채널명 계열"
+let DEPTH = "model";          // model | fam | chan
+let PERIOD = "week";          // week | month  (주차별 / 월별 탭)
+const AXIS = () => PERIOD === "week" ? STATE.weeks : STATE.months;
+const VEC  = c => PERIOD === "week" ? c.v : c.mv;    // 채널 그룹 필터
 
 /* ---------- 유틸 ---------- */
 const fmt = n => n.toLocaleString("ko-KR");
@@ -238,6 +349,11 @@ function weekLabel(wsMs){
   };
 }
 
+function ymd(ms){
+  const d = new Date(ms), p = n => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}`;
+}
+
 /* ---------- 모델 계열 ---------- */
 function family(m){
   const x = String(m || "").toLowerCase();
@@ -271,12 +387,24 @@ function aggregate(tables, tzMode){
   const lastName = new Map();      // 채널 ID -> [최신ts, 채널명]
   const cells    = new Map();      // "채널ID 모델" -> {cid, model, fam, w:Map(주시작->건수), t}
   const wsSet    = new Set();
+  const mkSet    = new Set();
   const srcStats = [];
   let nRaw = 0, nBadDate = 0, nDupId = 0;
-  const seenId = new Set();        // 통계 표시용으로만 사용 (제외하지 않음)
+  let dMin = Infinity, dMax = -Infinity;
+  /* 이용자 계산용 행 단위 기록 (임의 조건으로 고유 인원을 세기 위해 유지) */
+  let hasUid = false;
+  const uTab = new Map();               // 식별번호 문자열 -> 인덱스
+  const rowM = [], rowC = [], rowF = [], rowU = [];   // 월 / 채널ID / 계열 / 이용자(-1=비로그인)
+  const cidTab = new Map();             // 채널ID -> 인덱스
+  const famTab = new Map();
+  const seenId = new Map();        // Chat ID -> 최초 등장 파일 index (제외하지 않고 통계만)
+  let crossDup = 0;                // 서로 다른 파일에 같은 Chat ID 가 있는 건수
+  const crossPairs = new Map();    // "파일A ↔ 파일B" -> 건수
 
+  let fileIdx = -1;
   for (const {tab, text} of tables){
-    let sRaw = 0, sBad = 0;
+    fileIdx++;
+    let sRaw = 0, sBad = 0, sCross = 0;
     const rows = parseCSV(text);
     if (!rows.length) continue;
     const head = rows[0].map(h => h.trim().replace(/^\uFEFF/, ""));
@@ -286,19 +414,35 @@ function aggregate(tables, tzMode){
       if (j < 0) throw new Error(`"${tab}" 에 컬럼 '${k}' 가 없습니다.\n찾은 헤더: ${head.join(" | ")}`);
       ix[k] = j;
     }
+    // 식별번호 컬럼(선택) 위치
+    const uj = head.findIndex(h => UIDCOL.some(u => h.toLowerCase() === u.toLowerCase()));
+    if (uj >= 0) hasUid = true;
     for (let r = 1; r < rows.length; r++){
       const row = rows[r];
       if (row.length === 1 && !row[0]) continue;
       const chat = (row[ix["Chat ID"]] || "").trim();
       if (!chat) continue;
       nRaw++; sRaw++;
-      if (seenId.has(chat)) nDupId++; else seenId.add(chat);
+      if (seenId.has(chat)){
+        nDupId++;
+        const first = seenId.get(chat);
+        if (first !== fileIdx){
+          crossDup++; sCross++;
+          const k = `${tables[first].tab.split("  ")[0]} ↔ ${tab.split("  ")[0]}`;
+          crossPairs.set(k, (crossPairs.get(k) || 0) + 1);
+        }
+      } else seenId.set(chat, fileIdx);
 
       const rawTs = row[ix["생성일시"]];
       const day = toKstDayUTC(rawTs, tzMode);
       if (day == null){ nBadDate++; sBad++; continue; }
       const ws = weekStart(day);
       wsSet.add(ws);
+      const dt = new Date(day);
+      const mk = dt.getUTCFullYear() * 12 + dt.getUTCMonth();   // 월 키
+      mkSet.add(mk);
+      if (day < dMin) dMin = day;
+      if (day > dMax) dMax = day;
 
       const cid   = (row[ix["채널 ID"]] || "").trim() || "(없음)";
       const cname = (row[ix["채널명"]]  || "").trim() || "(없음)";
@@ -310,11 +454,26 @@ function aggregate(tables, tzMode){
 
       const k = cid + " " + model;
       let a = cells.get(k);
-      if (!a){ a = { cid, model, fam: family(model), w: new Map(), t: 0 }; cells.set(k, a); }
+      if (!a){ a = { cid, model, fam: family(model), w: new Map(), m: new Map(), t: 0 }; cells.set(k, a); }
       a.w.set(ws, (a.w.get(ws) || 0) + 1);
+      a.m.set(mk, (a.m.get(mk) || 0) + 1);
       a.t++;
+
+      // 행 단위 기록
+      if (!cidTab.has(cid)) cidTab.set(cid, cidTab.size);
+      const fm = a.fam;
+      if (!famTab.has(fm)) famTab.set(fm, famTab.size);
+      let ui = -1;
+      if (uj >= 0){
+        const uv = (row[uj] || "").trim();
+        if (uv){
+          if (!uTab.has(uv)) uTab.set(uv, uTab.size);
+          ui = uTab.get(uv);
+        }
+      }
+      rowM.push(mk); rowC.push(cidTab.get(cid)); rowF.push(famTab.get(fm)); rowU.push(ui);
     }
-    srcStats.push({ label: tab, raw: sRaw, bad: sBad });
+    srcStats.push({ label: tab, raw: sRaw, bad: sBad, cross: sCross });
   }
   if (!cells.size) throw new Error("집계할 데이터가 없습니다. 컬럼과 값 형식을 확인하세요.");
 
@@ -325,6 +484,21 @@ function aggregate(tables, tzMode){
   const W = weeks.length;
   const wIdx = new Map(weeks.map((w, i) => [w, i]));
 
+  // 월 축 (빈 달도 유지)
+  const minMk = Math.min(...mkSet), maxMk = Math.max(...mkSet);
+  const mks = [];
+  for (let k = minMk; k <= maxMk; k++) mks.push(k);
+  const M = mks.length;
+  const mIdx = new Map(mks.map((k, i) => [k, i]));
+  const pad2 = n => String(n).padStart(2, "0");
+  const months = mks.map(k => {
+    const y = Math.floor(k / 12), mo = k % 12;
+    const last = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+    return { l1: `${mo + 1}월`, range: `(${y})`,
+             start: `${y}-${pad2(mo + 1)}-01`, end: `${y}-${pad2(mo + 1)}-${pad2(last)}`,
+             empty: !mkSet.has(k) };
+  });
+
   // Map -> 고정 길이 배열, 채널명 현행화
   const list = [];
   const famTot = {};
@@ -332,17 +506,38 @@ function aggregate(tables, tzMode){
   for (const a of cells.values()){
     const v = new Int32Array(W);
     for (const [ws, n] of a.w) v[wIdx.get(ws)] = n;
-    a.v = v; a.w = null;
+    const mv = new Int32Array(M);
+    for (const [mk, n] of a.m) mv[mIdx.get(mk)] = n;
+    a.v = v; a.mv = mv; a.w = null; a.m = null;
     a.name = (lastName.get(a.cid) || [0, "(없음)"])[1];
     famTot[a.fam] = (famTot[a.fam] || 0) + a.t;
     total += a.t;
     list.push(a);
   }
 
+  // mk(연*12+월) -> 월 index 로 치환하고 TypedArray 로 압축
+  const N = rowM.length;
+  const aM = new Int16Array(N), aC = new Int32Array(N),
+        aF = new Int8Array(N),  aU = new Int32Array(N);
+  for (let i = 0; i < N; i++){
+    aM[i] = mIdx.get(rowM[i]); aC[i] = rowC[i]; aF[i] = rowF[i]; aU[i] = rowU[i];
+  }
+  const cidName = new Array(cidTab.size);
+  for (const [cid, i] of cidTab) cidName[i] = (lastName.get(cid) || [0, "(없음)"])[1];
+  const famName = new Array(famTab.size);
+  for (const [f, i] of famTab) famName[i] = f;
+
   return {
+    hasUid, rowN: N, aM, aC, aF, aU, cidName, famName,
+    nUsers: uTab.size,
     weeks: weeks.map(w => ({ ms: w, ...weekLabel(w), empty: !wsSet.has(w) })),
+    months,
     cells: list,
     total, nRaw, nBadDate, nDupId, srcStats,
+    crossDup, crossPairs: [...crossPairs.entries()].sort((a, b) => b[1] - a[1]),
+    nFiles: tables.length,
+    dataFrom: isFinite(dMin) ? ymd(dMin) : null,
+    dataTo:   isFinite(dMax) ? ymd(dMax) : null,
     emptyWeeks: weeks.filter(w => !wsSet.has(w)).map(w => weekLabel(w)),
     famTot, tzMode,
     nChan:  new Set(list.map(a => a.name)).size,
@@ -353,7 +548,7 @@ function aggregate(tables, tzMode){
 
 /* ---------- 행 구성 (소계/총계) ---------- */
 function addArr(dst, src){ for (let i = 0; i < src.length; i++) dst[i] += src[i]; }
-function sumOf(list, W){ const a = new Int32Array(W); for (const x of list) addArr(a, x.v); return a; }
+function sumOf(list, W){ const a = new Int32Array(W); for (const x of list) addArr(a, VEC(x)); return a; }
 
 /* 채널 표시 순서: 지정 목록 우선(접두사 그룹은 정확일치 먼저), 나머지는 누적 내림차순 */
 const PRIORITY = ["MCP Beta","PNU 도우미","행정 도우미","학사 도우미","입학 도우미","Plato 도우미"];
@@ -374,7 +569,7 @@ function chanGroup(name){
 }
 
 function buildRows(S, q, group){
-  const W = S.weeks.length;
+  const W = AXIS().length;
   let cells = S.cells;
   if (group && group !== "전체") cells = cells.filter(c => chanGroup(c.name) === group);
   if (q){
@@ -396,13 +591,31 @@ function buildRows(S, q, group){
     .sort((a, b) => a[3][0] - b[3][0] || a[3][1] - b[3][1]
                  || b[2] - a[2] || String(a[0]).localeCompare(String(b[0]), "ko"));
 
-  // 채널 ID 표기: 해당 묶음의 채널 ID 가 하나면 그 값, 여러 개면 "N개"
-  const idLabel = list => {
-    const set = new Set(list.map(x => x.cid));
-    return set.size === 1 ? [...set][0] : `${fmt(set.size)}개`;
+  // 채널 ID 표기: 그 채널 전체가 단일 채널 ID 로 특정될 때만 표시한다.
+  // MCP Beta 처럼 채널 ID 가 여러 개인 채널은 전 행을 비운다(일부 줄만 ID 가 뜨면 오해 소지).
+  if (!S._chanIds){
+    const m = new Map();
+    for (const c of S.cells){
+      if (!m.has(c.name)) m.set(c.name, new Set());
+      m.get(c.name).add(c.cid);
+    }
+    S._chanIds = m;
+  }
+  const idLabel = name => {
+    const all = S._chanIds.get(name);
+    return all && all.size === 1 ? [...all][0] : "";
   };
 
+  let blk = 0;                     // 채널 블록 번호 (행 병합 단위)
   for (const [name, list] of names){
+    blk++;
+    const chClosed = FOLD_CH.has(name);
+    if (chClosed){
+      // 채널 접힘 → 채널 소계 한 줄만
+      rows.push({ k: "sub-nm", g: [name, idLabel(name), "", "채널 소계"],
+                  v: sumOf(list, W), blk, chKey: name, chClosed: true });
+      continue;
+    }
     const byFam = new Map();
     for (const c of list){
       if (!byFam.has(c.fam)) byFam.set(c.fam, []);
@@ -413,28 +626,35 @@ function buildRows(S, q, group){
       .sort((a, b) => b[2] - a[2]);
 
     for (const [fm, l] of fams){
-      // 같은 (채널명, 계열, 모델) 은 여러 채널 ID 에 걸쳐 있어도 한 행으로 합산
-      const byModel = new Map();
-      for (const c of l){
-        let m = byModel.get(c.model);
-        if (!m){ m = { model: c.model, v: new Int32Array(W), t: 0, ids: [] }; byModel.set(c.model, m); }
-        addArr(m.v, c.v); m.t += c.t; m.ids.push(c);
+      const fk = name + " " + fm;
+      const famClosed = FOLD_FAM.has(fk);
+      if (!famClosed){
+        // 같은 (채널명, 계열, 모델) 은 여러 채널 ID 에 걸쳐 있어도 한 행으로 합산
+        const byModel = new Map();
+        for (const c of l){
+          let m = byModel.get(c.model);
+          if (!m){ m = { model: c.model, v: new Int32Array(W), t: 0, ids: [] }; byModel.set(c.model, m); }
+          addArr(m.v, VEC(c)); m.t += c.t; m.ids.push(c);
+        }
+        const items = [...byModel.values()]
+          .sort((a, b) => b.t - a.t || String(a.model).localeCompare(String(b.model)));
+        for (const m of items)
+          rows.push({ k: "data", g: [name, idLabel(name), fm, m.model], v: m.v,
+                      blk, chKey: name, famKey: fk });
       }
-      const items = [...byModel.values()]
-        .sort((a, b) => b.t - a.t || String(a.model).localeCompare(String(b.model)));
-      for (const m of items)
-        rows.push({ k: "data", g: [name, idLabel(m.ids), fm, m.model], v: m.v });
-      rows.push({ k: "sub-fam", g: ["", idLabel(l), fm, `${fm} 소계`], v: sumOf(l, W) });
+      rows.push({ k: "sub-fam", g: [name, idLabel(name), fm, `${fm} 소계`],
+                  v: sumOf(l, W), blk, chKey: name, famKey: fk, famClosed });
     }
-    rows.push({ k: "sub-nm", g: [name, idLabel(list), "", "채널 소계"], v: sumOf(list, W) });
+    rows.push({ k: "sub-nm", g: [name, idLabel(name), "", "채널 소계"],
+                v: sumOf(list, W), blk, chKey: name });
   }
 
   const grand = sumOf(cells, W);
-  rows.push({ k: "total", g: ["전체 총계", idLabel(cells), "", ""], v: grand });
+  rows.push({ k: "total", g: ["전체 총계", "", "", ""], v: grand, blk: -1 });
   const cum = new Int32Array(W);
   let run = 0;
   for (let i = 0; i < W; i++){ run += grand[i]; cum[i] = run; }
-  rows.push({ k: "cumul", g: ["누적 총계", "", "", ""], v: cum, totOverride: run });
+  rows.push({ k: "cumul", g: ["누적 총계", "", "", ""], v: cum, totOverride: run, blk: -2 });
   return rows;
 }
 
@@ -444,26 +664,49 @@ const GWIDTH = [200, 210, 92, 210];
 const GOFFS  = GWIDTH.reduce((a, w, i) => (a.push(i ? a[i-1] + GWIDTH[i-1] : 0), a), []);
 
 function renderChips(){
-  const S = STATE; if (!S) return;
-  const counts = new Map([["전체", S.total]]);
-  for (const c of S.cells){
-    const g = chanGroup(c.name);
-    counts.set(g, (counts.get(g) || 0) + c.t);
-  }
+  const S = STATE;
+  // 그룹별 채널명 수 · 채널 ID 수 · 질의답변수
+  const agg = new Map();
+  const put = (g, c) => {
+    let o = agg.get(g);
+    if (!o){ o = { n: new Set(), ids: new Set(), t: 0 }; agg.set(g, o); }
+    o.n.add(c.name); o.ids.add(c.cid); o.t += c.t;
+  };
+  for (const c of S.cells){ put("전체", c); put(chanGroup(c.name), c); }
+
   const order = ["전체", ...PRIORITY, "그 외"];
-  $("#chips").innerHTML = order
-    .filter(g => g === "전체" || counts.has(g))
-    .map(g => `<button class="chip" data-g="${escapeHtml(g)}" aria-pressed="${g === GROUP}">`
-            + `${escapeHtml(g)}<span class="cnt">${fmt(counts.get(g) || 0)}</span></button>`)
-    .join("");
+  $("#chips").innerHTML = order.filter(g => agg.has(g)).map(g => {
+    const o = agg.get(g);
+    const pct = S.total ? (o.t / S.total * 100).toFixed(1) : "0";
+    const tip = `${g} · 채널 ${o.n.size}개 (채널 ID ${fmt(o.ids.size)}개)`
+              + ` · 질의답변수 ${fmt(o.t)}건 · 전체의 ${pct}%`;
+    return `<button class="chip" data-g="${escapeHtml(g)}" aria-pressed="${g === GROUP}" title="${escapeHtml(tip)}">`
+         + `<span class="nm">${escapeHtml(g)}</span>`
+         + `<span class="cnt"><b>${o.n.size}</b>채널 / <b>${fmt(o.t)}</b>건</span></button>`;
+  }).join("");
   for (const b of $("#chips").querySelectorAll(".chip"))
     b.onclick = () => { GROUP = b.dataset.g; render(); };
 }
 
 function render(){
   const S = STATE; if (!S) return;
+  for (const b of document.querySelectorAll("#tabs button"))
+    b.setAttribute("aria-pressed", String(b.dataset.p === PERIOD));
+  $("#mainview").hidden   = PERIOD === "report";
+  $("#reportview").hidden = PERIOD !== "report";
+  $("#cards").hidden = PERIOD === "report";
+  if (PERIOD === "report"){
+    $("#out").hidden = false;
+    renderChips();
+    renderReport();
+    $("#csv").disabled = false;
+    document.title = "월간 보고 — 질의답변수";
+    return;
+  }
+  const M_total = S.total;
   const rows = buildRows(S, $("#q").value.trim(), GROUP);
-  const W = S.weeks.length;
+  const AX = AXIS();
+  const W = AX.length;
 
   const h = [];
   h.push("<thead><tr>");
@@ -472,47 +715,129 @@ function render(){
   h.push(`<th colspan="${W}">${BAND}</th>`);
   h.push(`<th rowspan="2" class="tot">전체 누적<br>합계</th>`);
   h.push("</tr><tr>");
-  for (const w of S.weeks)
-    h.push(`<th class="${w.empty ? "empty-wk" : ""}" title="${w.start} ~ ${w.end}">${w.l1}<span class="l2">${w.range}</span></th>`);
+  const CW = currentWeekIdx();
+  AX.forEach((w, i) => {
+    const cur = i === CW.idx;
+    const cls = [w.empty ? "empty-wk" : "", cur ? "cur" : ""].filter(Boolean).join(" ");
+    const unit = PERIOD === "week" ? "주" : "달";
+    const tip = `${w.start} ~ ${w.end}` + (cur ? (CW.exact ? ` · 오늘이 포함된 ${unit}` : ` · 오늘에 가장 가까운 ${unit}`) : "");
+    h.push(`<th class="${cls}" title="${tip}">${w.l1}${cur ? '<span class="badge">오늘</span>' : ""}`
+         + `<span class="l2">${w.range}</span></th>`);
+  });
   h.push("</tr></thead><tbody>");
 
   if (!rows.length){
     h.push(`<tr><td colspan="${GCOLS.length + W + 1}" style="padding:18px;text-align:center;color:#5b6570">`
          + `해당하는 데이터가 없습니다.</td></tr>`);
   }
-  for (const r of rows){
+  // 병합 계산 — 값이 아니라 "블록" 단위로 묶는다.
+  //   채널명(0) · 채널 ID(1) : 채널 블록 전체를 하나로 (값이 비어 있어도 병합)
+  //   모델 계열(2)          : 채널 블록 안에서 같은 계열이 이어지는 구간
+  // 전체 총계 / 누적 총계 행은 각자 고유 블록이라 자연히 병합에서 빠진다.
+  const MERGE = [0, 1, 2];
+  const mkey = (r, col) => col < 2 ? `b${r.blk}` : `b${r.blk}|${r.g[2]}`;
+  const span = rows.map(() => ({}));
+  for (const col of MERGE){
+    let i = 0;
+    while (i < rows.length){
+      const k = mkey(rows[i], col);
+      let j = i + 1;
+      while (j < rows.length && mkey(rows[j], col) === k) j++;
+      span[i][col] = j - i;
+      for (let x = i + 1; x < j; x++) span[x][col] = 0;
+      i = j;
+    }
+  }
+
+  for (let ri = 0; ri < rows.length; ri++){
+    const r = rows[ri];
     h.push(`<tr class="${r.k}">`);
-    r.g.forEach((g, i) => h.push(
-      `<td class="stick g${i === 1 ? " cid" : ""}" style="left:${GOFFS[i]}px">${g ? escapeHtml(g) : ""}</td>`));
+    r.g.forEach((g, i) => {
+      if (MERGE.includes(i)){
+        const n = span[ri][i];
+        if (n === 0) return;                       // 위 셀에 병합됨
+        const rs = n > 1 ? ` rowspan="${n}"` : "";
+        const mg = n > 1 ? " mg" : "";
+        let fold = "";
+        if (i === 0 && r.chKey){
+          const cl = FOLD_CH.has(r.chKey);
+          fold = `<span class="fold" data-t="ch" data-k="${escapeHtml(r.chKey)}" `
+               + `title="${cl ? "펼치기" : "접기"}">${cl ? "📁" : "📂"}</span>`;
+        } else if (i === 2 && r.famKey && r.g[2]){
+          const cl = FOLD_FAM.has(r.famKey);
+          fold = `<span class="fold" data-t="fam" data-k="${escapeHtml(r.famKey)}" `
+               + `title="${cl ? "펼치기" : "접기"}">${cl ? "📁" : "📂"}</span>`;
+        }
+        h.push(`<td${rs} class="stick g${i === 1 ? " cid" : ""}${mg}" style="left:${GOFFS[i]}px">`
+             + fold + (g ? escapeHtml(g) : "") + `</td>`);
+      } else {
+        h.push(`<td class="stick g" style="left:${GOFFS[i]}px">${g ? escapeHtml(g) : ""}</td>`);
+      }
+    });
     let t = 0;
     for (let i = 0; i < W; i++){
       const v = r.v[i]; t += v;
-      h.push(`<td class="num${v ? "" : " z"}">${v ? fmt(v) : 0}</td>`);
+      h.push(`<td class="num${v ? "" : " z"}${i === CW.idx ? " cur" : ""}">${v ? fmt(v) : 0}</td>`);
     }
     h.push(`<td class="num tot">${fmt(r.totOverride != null ? r.totOverride : t)}</td></tr>`);
   }
   h.push("</tbody>");
   $("#tbl").innerHTML = h.join("");
-
+  for (const el of $("#tbl").querySelectorAll(".fold")){
+    el.onclick = ev => {
+      ev.stopPropagation();
+      const set = el.dataset.t === "ch" ? FOLD_CH : FOLD_FAM;
+      const k = el.dataset.k;
+      if (set.has(k)) set.delete(k); else set.add(k);
+      DEPTH = "";
+      render();
+    };
+  }
   renderChips();
 
   const shown = rows.length ? rows[rows.length - 2].v.reduce((a, b) => a + b, 0) : 0;
+  const pct = n => M_total ? (n / M_total * 100).toFixed(1) + "%" : "";
+  const w0 = AX[0], w1 = AX[W - 1];
   const fam = Object.entries(S.famTot).sort((a, b) => b[1] - a[1]);
+  const nEmpty = AX.filter(w => w.empty).length;
   $("#cards").innerHTML = [
-    card("전체 질의답변수", fmt(S.total)),
-    GROUP === "전체" ? null : card(`${GROUP} 소계`, fmt(shown)),
-    card("주차 수", `${W}주`),
-    card("채널 수", `${S.nChan} (ID ${fmt(S.nCid)})`),
-    card("AI 모델 수", S.nModel),
-    ...fam.map(([k, v]) => card(k, fmt(v)))
+    card("전체 질의답변수", fmt(S.total), "건",
+         `중복 제거 없이 센 전체 로그 행${S.nDupId ? ` · Chat ID 중복 ${fmt(S.nDupId)}건 포함` : ""}`),
+    GROUP === "전체" ? null
+      : card(`${escapeHtml(GROUP)} 소계`, fmt(shown), "건", `전체의 ${pct(shown)}`),
+    PERIOD === "week"
+      ? card("집계 주차", W, "주",
+             `${w0.start} ~ ${w1.end} · 토요일 시작~금요일 마감`
+             + (nEmpty ? ` · 로그 없는 주 ${nEmpty}주 포함` : ""))
+      : card("집계 개월", W, "개월",
+             `${w0.start} ~ ${w1.end} · 달력 월 기준(KST)`
+             + (nEmpty ? ` · 로그 없는 달 ${nEmpty}개월 포함` : "")),
+    card("채널", S.nChan, "개", `채널 ID ${fmt(S.nCid)}개 · 이름은 최신값으로 현행화`),
+    card("AI 모델", S.nModel, "개", `${fam.length}개 계열로 분류 · 미분류 없음`),
+    ...fam.map(([k, v]) => card(k + " 계열", fmt(v), "건", `전체의 ${pct(v)}`))
   ].filter(Boolean).join("");
+
+  for (const b of document.querySelectorAll("#depth button"))
+    b.setAttribute("aria-pressed", String(b.dataset.d === DEPTH));
+  for (const b of document.querySelectorAll("#tabs button"))
+    b.setAttribute("aria-pressed", String(b.dataset.p === PERIOD));
+  document.title = (PERIOD === "week" ? "주차별" : "월별") + " 질의답변수 집계표";
+
+  const fromTo = (S.dataFrom && S.dataTo) ? `${S.dataFrom} ~ ${S.dataTo}`
+               : `${w0.start} ~ ${w1.end}`;
+  const cwTxt = CW.idx >= 0
+    ? ` · 오늘 ${CW.exact ? "포함" : "인접"} ${PERIOD === "week" ? "주차" : "월"}: ${AX[CW.idx].l1}${AX[CW.idx].range}`
+    : "";
+  $("#period").textContent =
+    `데이터 기간 ${fromTo} · 총 ${S.weeks.length}주차 / ${S.months.length}개월 · ${fmt(S.total)}건${cwTxt}`;
 
   $("#notes").innerHTML = [
     `주차: 토요일 시작 ~ 다음 주 금요일 마감. 라벨은 <b>마감 금요일이 속한 달의 N번째 금요일</b> 기준 (예: 03/28~04/03 → 4월 1주).`,
     `시간대: 원본을 <b>${S.tzMode === "utc" ? "UTC" : "KST"}</b>로 해석해 KST(UTC+9) 날짜로 집계.`,
     `<b>중복 제거하지 않습니다.</b> 모든 행을 각각 1건으로 셉니다 (읽은 행 ${fmt(S.nRaw)}건 중 Chat ID가 겹치는 행 ${fmt(S.nDupId)}건도 모두 포함).`,
     `집계 키는 <b>채널 ID</b>, 표기 채널명은 해당 채널 ID의 <b>가장 최근 기록에 나타난 이름</b>(현행화).`,
-    `<b>채널 ID 열</b>: 그 줄에 해당하는 채널 ID 가 하나면 ID 를, 여러 개면 개수를 표시합니다.`,
+    `채널명 · 채널 ID · 모델 계열 열은 <b>같은 값이 이어지는 구간을 병합</b>해 보여줍니다.`,
+    `<b>채널 ID 열</b>: 채널 ID 가 하나로 특정되는 줄에만 표시합니다. 여러 채널 ID 가 합쳐진 줄(MCP Beta 등)은 비워 둡니다 — 검색창으로는 채널 ID 조회가 됩니다.`,
     S.nBadDate ? `생성일시를 해석할 수 없어 제외한 행: ${fmt(S.nBadDate)}건.` : null,
     S.emptyWeeks.length
       ? `데이터가 없는 주차: ${S.emptyWeeks.map(w => w.range).join(", ")} — 0으로 표기(주차 번호는 달력 기준 연속).`
@@ -524,17 +849,371 @@ function render(){
 
   $("#out").hidden = false;
   $("#csv").disabled = false;
+  $("#xlsx").disabled = false;
+  pinBottomRows();
+  requestAnimationFrame(() => {
+    pinBottomRows();
+    if (!FOCUSED){ FOCUSED = true; focusCurrentWeek(); }
+  });
 }
-function card(k, v){ return `<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`; }
+
+addEventListener("resize", () => { if (STATE) pinBottomRows(); });
+/* 전체 총계 · 누적 총계 행을 표 하단에 붙여 고정한다 (행 높이를 실측해 오프셋 지정) */
+function pinBottomRows(){
+  const tb = $("#tbl").tBodies[0];
+  if (!tb) return;
+  const rs = [...tb.rows];
+  const cumul = rs.find(r => r.className === "cumul");
+  const total = rs.find(r => r.className === "total");
+  if (cumul) for (const td of cumul.cells) td.style.bottom = "0px";
+  if (total && cumul){
+    const hh = cumul.getBoundingClientRect().height;
+    for (const td of total.cells) td.style.bottom = hh + "px";
+  } else if (total){
+    for (const td of total.cells) td.style.bottom = "0px";
+  }
+}
+
+/* 오늘(KST) 이 속한 주차 index. 없으면 가장 가까운 주차. */
+function currentWeekIdx(){
+  const S = STATE; if (!S) return -1;
+  const today = new Date(Date.now() + 9 * 3600e3);   // KST 기준 오늘
+  const t = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  let best = -1, bestDist = Infinity, exact = -1;
+  AXIS().forEach((w, i) => {
+    const a = Date.parse(w.start + "T00:00:00Z"), b = Date.parse(w.end + "T00:00:00Z");
+    const dist = t < a ? a - t : (t > b ? t - b : 0);
+    if (dist === 0) exact = i;
+    if (dist < bestDist){ bestDist = dist; best = i; }
+  });
+  return { idx: best, exact: exact >= 0 };
+}
+
+/* 오늘 주차가 보이도록 가로 스크롤 */
+function focusCurrentWeek(){
+  const S = STATE; if (!S) return;
+  const box = $(".tablebox");
+  const ths = $("#tbl").tHead ? [...$("#tbl").tHead.rows[1].cells] : [];
+  if (!ths.length) return;
+  const best = currentWeekIdx().idx;
+  if (best < 0) return;
+  const th = ths[best];
+  if (!th) return;
+  const frozen = GWIDTH.reduce((a, b) => a + b, 0);
+  box.scrollLeft = Math.max(0, th.offsetLeft - frozen - 8);
+}
+
+function card(k, v, u, d){
+  const val = u ? `${v}<span class="u">${u}</span>` : v;
+  return `<div class="card"><div class="k">${k}</div><div class="v">${val}</div>`
+       + (d ? `<div class="d">${d}</div>` : "") + `</div>`;
+}
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
 
 /* ---------- CSV 내보내기 ---------- */
+/* ============================================================
+   서식 있는 xlsx 직접 생성 (외부 라이브러리 없음)
+   - 배경색 / 굵기 / 테두리 / 가운데·왼쪽·오른쪽 정렬 / #,##0
+   - 셀 병합 · 틀 고정(E3) · 열 너비
+   - ZIP 은 무압축(store)으로 직접 기록
+   ============================================================ */
+const XQ = s => String(s).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
+
+/* ---- CRC32 ---- */
+const CRC_T = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++){
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf){
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC_T[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+/* ---- 무압축 ZIP ---- */
+function zipStore(files){
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  for (const f of files){
+    const name = enc.encode(f.name);
+    const data = typeof f.data === "string" ? enc.encode(f.data) : f.data;
+    const crc = crc32(data);
+    const lh = new Uint8Array(30 + name.length);
+    const dv = new DataView(lh.buffer);
+    dv.setUint32(0, 0x04034b50, true);
+    dv.setUint16(4, 20, true); dv.setUint16(6, 0, true); dv.setUint16(8, 0, true);
+    dv.setUint16(10, 0, true); dv.setUint16(12, 0x2821, true);   // 시각 고정
+    dv.setUint32(14, crc, true);
+    dv.setUint32(18, data.length, true); dv.setUint32(22, data.length, true);
+    dv.setUint16(26, name.length, true); dv.setUint16(28, 0, true);
+    lh.set(name, 30);
+    parts.push(lh, data);
+
+    const ch = new Uint8Array(46 + name.length);
+    const cv = new DataView(ch.buffer);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0, true); cv.setUint16(10, 0, true);
+    cv.setUint16(12, 0, true); cv.setUint16(14, 0x2821, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true);
+    cv.setUint16(28, name.length, true);
+    cv.setUint32(42, offset, true);
+    ch.set(name, 46);
+    central.push(ch);
+    offset += lh.length + data.length;
+  }
+  const cdSize = central.reduce((a, b) => a + b.length, 0);
+  const end = new Uint8Array(22);
+  const ev = new DataView(end.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, files.length, true); ev.setUint16(10, files.length, true);
+  ev.setUint32(12, cdSize, true); ev.setUint32(16, offset, true);
+  const all = [...parts, ...central, end];
+  const total = all.reduce((a, b) => a + b.length, 0);
+  const out = new Uint8Array(total);
+  let p = 0;
+  for (const b of all){ out.set(b, p); p += b.length; }
+  return out;
+}
+
+/* ---- 스타일 테이블 ---- */
+function makeStyles(){
+  const fills = ["none", "gray125"];                       // 0,1 은 규격상 고정
+  const fillIdx = new Map();
+  const fill = rgb => {
+    if (!rgb) return 0;
+    if (!fillIdx.has(rgb)){ fills.push(rgb); fillIdx.set(rgb, fills.length - 1); }
+    return fillIdx.get(rgb);
+  };
+  const fonts = [], fontIdx = new Map();
+  const font = (bold, color, sz) => {
+    const k = `${bold}|${color}|${sz}`;
+    if (!fontIdx.has(k)){ fonts.push({ bold, color, sz }); fontIdx.set(k, fonts.length - 1); }
+    return fontIdx.get(k);
+  };
+  const borders = [], borderIdx = new Map();
+  const border = kind => {
+    if (!borderIdx.has(kind)){ borders.push(kind); borderIdx.set(kind, borders.length - 1); }
+    return borderIdx.get(kind);
+  };
+  const xfs = [], xfIdx = new Map();
+  const xf = o => {
+    const k = JSON.stringify(o);
+    if (!xfIdx.has(k)){ xfs.push(o); xfIdx.set(k, xfs.length - 1); }
+    return xfIdx.get(k);
+  };
+  font(false, "FF1A1A1A", 10);          // 0 기본
+  border("none");                        // 0 기본
+  xf({ f: 0, fl: 0, b: 0, al: "left", num: 0 });   // 0 기본
+  return { fills, fonts, borders, xfs, fill, font, border, xf,
+    xml(){
+      const fillXml = this.fills.map(f =>
+        f === "none" ? '<fill><patternFill patternType="none"/></fill>'
+        : f === "gray125" ? '<fill><patternFill patternType="gray125"/></fill>'
+        : `<fill><patternFill patternType="solid"><fgColor rgb="${f}"/>`
+          + `<bgColor indexed="64"/></patternFill></fill>`).join("");
+      const fontXml = this.fonts.map(f =>
+        `<font><sz val="${f.sz}"/><color rgb="${f.color}"/>`
+        + `<name val="맑은 고딕"/>${f.bold ? "<b/>" : ""}</font>`).join("");
+      const bXml = this.borders.map(k => {
+        if (k === "none") return "<border><left/><right/><top/><bottom/><diagonal/></border>";
+        const thin = '<color rgb="FFBFBFBF"/>';
+        const side = (pos, cur) => cur
+          ? `<${pos} style="medium"><color rgb="FF0E7C5A"/></${pos}>`
+          : `<${pos} style="thin">${thin}</${pos}>`;
+        const cur = k === "cur";
+        return "<border>" + side("left", cur) + side("right", cur)
+             + side("top", false) + side("bottom", false) + "<diagonal/></border>";
+      }).join("");
+      const xfXml = this.xfs.map(o =>
+        `<xf numFmtId="${o.num}" fontId="${o.f}" fillId="${o.fl}" borderId="${o.b}" xfId="0"`
+        + ` applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"`
+        + (o.num ? ' applyNumberFormat="1"' : "")
+        + `><alignment horizontal="${o.al}" vertical="center"`
+        + (o.wrap ? ' wrapText="1"' : "") + "/></xf>").join("");
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+        + `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+        + `<fonts count="${this.fonts.length}">${fontXml}</fonts>`
+        + `<fills count="${this.fills.length}">${fillXml}</fills>`
+        + `<borders count="${this.borders.length}">${bXml}</borders>`
+        + `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>`
+        + `<cellXfs count="${this.xfs.length}">${xfXml}</cellXfs>`
+        + `<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>`
+        + `</styleSheet>`;
+    } };
+}
+
+const colName = n => { let s = ""; n++; while (n > 0){ const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = (n - m - 1) / 26; } return s; };
+
+/* ---- 서식 포함 내보내기 ---- */
+function exportXLSXStyled(){
+  if (!STATE) return;
+  const AX = AXIS(), W = AX.length;
+  const rows = buildRows(STATE, $("#q").value.trim(), GROUP);
+  const CW = currentWeekIdx();
+  const NC = GCOLS.length + W + 1;
+
+  const S = makeStyles();
+  const C = { navy: "FF1F4E79", red: "FFC00000", green: "FF0E7C5A",
+              fam: "FFE2EFDA", nm: "FFBDD7EE", tot: "FFFFE699", cum: "FFF8CBAD" };
+  const fWhite = S.font(true, "FFFFFFFF", 10);
+  const fBold  = S.font(true, "FF1A1A1A", 10);
+  const fNorm  = S.font(false, "FF1A1A1A", 10);
+  const bThin  = S.border("thin"), bCur = S.border("cur");
+  const rowFill = { data: 0, "sub-fam": S.fill(C.fam), "sub-nm": S.fill(C.nm),
+                    total: S.fill(C.tot), cumul: S.fill(C.cum) };
+
+  const hdr = (fillRgb, cur) => S.xf({ f: fWhite, fl: S.fill(fillRgb), b: cur ? bCur : bThin,
+                                       al: "center", num: 0, wrap: 1 });
+  const body = (kind, cur, align, num) =>
+    S.xf({ f: (kind === "data" && !cur) ? fNorm : fBold, fl: rowFill[kind],
+           b: cur ? bCur : bThin, al: align, num: num ? 3 : 0 });
+
+  const cells = [];   // {r,c,v,t,s}
+  const merges = [];
+  // 1행
+  GCOLS.forEach((g, i) => { cells.push({ r: 0, c: i, v: g, t: "s", s: hdr(C.navy) });
+                            merges.push([0, i, 1, i]); });
+  cells.push({ r: 0, c: GCOLS.length, v: BAND, t: "s", s: hdr(C.navy) });
+  merges.push([0, GCOLS.length, 0, GCOLS.length + W - 1]);
+  for (let k = 1; k < W; k++) cells.push({ r: 0, c: GCOLS.length + k, v: "", t: "s", s: hdr(C.navy) });
+  cells.push({ r: 0, c: NC - 1, v: TOTCOL, t: "s", s: hdr(C.red) });
+  merges.push([0, NC - 1, 1, NC - 1]);
+  // 2행
+  GCOLS.forEach((g, i) => cells.push({ r: 1, c: i, v: "", t: "s", s: hdr(C.navy) }));
+  AX.forEach((w, i) => cells.push({ r: 1, c: GCOLS.length + i,
+      v: w.l1 + " " + w.range + (i === CW.idx ? " ★오늘" : ""), t: "s",
+      s: hdr(i === CW.idx ? C.green : C.navy, i === CW.idx) }));
+  cells.push({ r: 1, c: NC - 1, v: "", t: "s", s: hdr(C.red) });
+
+  // 병합 계산 (화면과 동일)
+  const MERGE = [0, 1, 2];
+  const mkey = (r, col) => col < 2 ? `b${r.blk}` : `b${r.blk}|${r.g[2]}`;
+  const span = rows.map(() => ({}));
+  for (const col of MERGE){
+    let i = 0;
+    while (i < rows.length){
+      const k = mkey(rows[i], col);
+      let j = i + 1;
+      while (j < rows.length && mkey(rows[j], col) === k) j++;
+      span[i][col] = j - i;
+      for (let x = i + 1; x < j; x++) span[x][col] = 0;
+      i = j;
+    }
+  }
+
+  rows.forEach((r, ri) => {
+    const R = ri + 2;
+    r.g.forEach((g, i) => {
+      if (MERGE.includes(i)){
+        const n = span[ri][i];
+        if (n === 0) return;
+        if (n > 1) merges.push([R, i, R + n - 1, i]);
+      }
+      cells.push({ r: R, c: i, v: g || "", t: "s", s: body(r.k, false, "left", 0) });
+    });
+    let t = 0;
+    for (let i = 0; i < W; i++){
+      const v = r.v[i]; t += v;
+      cells.push({ r: R, c: GCOLS.length + i, v, t: "n", s: body(r.k, i === CW.idx, "right", 1) });
+    }
+    cells.push({ r: R, c: NC - 1, v: r.totOverride != null ? r.totOverride : t, t: "n",
+                 s: body(r.k, false, "right", 1) });
+  });
+
+  // 시트 XML
+  const byRow = new Map();
+  for (const c of cells){ if (!byRow.has(c.r)) byRow.set(c.r, []); byRow.get(c.r).push(c); }
+  let sheet = "";
+  for (const [r, list] of [...byRow.entries()].sort((a, b) => a[0] - b[0])){
+    list.sort((a, b) => a.c - b.c);
+    const inner = list.map(c => {
+      const ref = colName(c.c) + (c.r + 1);
+      if (c.t === "n") return `<c r="${ref}" s="${c.s}"><v>${c.v}</v></c>`;
+      if (c.v === "")  return `<c r="${ref}" s="${c.s}"/>`;
+      return `<c r="${ref}" s="${c.s}" t="inlineStr"><is><t xml:space="preserve">${XQ(c.v)}</t></is></c>`;
+    }).join("");
+    sheet += `<row r="${r + 1}"${r < 2 ? ' ht="30" customHeight="1"' : ""}>${inner}</row>`;
+  }
+  const colsXml = "<cols>"
+    + GWIDTH.map((w, i) => `<col min="${i+1}" max="${i+1}" width="${(w/7).toFixed(1)}" customWidth="1"/>`).join("")
+    + `<col min="${GCOLS.length+1}" max="${GCOLS.length+W}" width="14" customWidth="1"/>`
+    + `<col min="${NC}" max="${NC}" width="17" customWidth="1"/></cols>`;
+  const mergeXml = merges.length
+    ? `<mergeCells count="${merges.length}">`
+      + merges.map(m => `<mergeCell ref="${colName(m[1])}${m[0]+1}:${colName(m[3])}${m[2]+1}"/>`).join("")
+      + "</mergeCells>" : "";
+  const dim = `A1:${colName(NC-1)}${rows.length + 2}`;
+  const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+    + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+    + `<dimension ref="${dim}"/>`
+    + `<sheetViews><sheetView workbookViewId="0" showGridLines="0">`
+    + `<pane xSplit="${GCOLS.length}" ySplit="2" topLeftCell="${colName(GCOLS.length)}3"`
+    + ` activePane="bottomRight" state="frozen"/>`
+    + `<selection pane="bottomRight" activeCell="${colName(GCOLS.length)}3" sqref="${colName(GCOLS.length)}3"/>`
+    + `</sheetView></sheetViews>`
+    + `<sheetFormatPr defaultRowHeight="15"/>`
+    + colsXml
+    + `<sheetData>${sheet}</sheetData>`
+    + mergeXml
+    + `</worksheet>`;
+
+  const unit = PERIOD === "week" ? "주차별" : "월별";
+  const name = `${unit}집계_${GROUP === "전체" ? "전체" : GROUP}`.replace(/[\\\/\?\*\[\]:]/g, "").slice(0, 31);
+  const files = [
+    { name: "[Content_Types].xml", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`
+      + `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>`
+      + `<Default Extension="xml" ContentType="application/xml"/>`
+      + `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>`
+      + `<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`
+      + `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>`
+      + `</Types>` },
+    { name: "_rels/.rels", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      + `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>`
+      + `</Relationships>` },
+    { name: "xl/workbook.xml", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"`
+      + ` xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`
+      + `<sheets><sheet name="${XQ(name)}" sheetId="1" r:id="rId1"/></sheets></workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      + `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>`
+      + `<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
+      + `</Relationships>` },
+    { name: "xl/styles.xml", data: S.xml() },
+    { name: "xl/worksheets/sheet1.xml", data: sheetXml },
+  ];
+  const zip = zipStore(files);
+  const d = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([zip], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  a.download = `${unit}_집계표_${GROUP}_${d}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  setStatus(`엑셀 파일을 내려받았습니다. (${unit} · ${GROUP} · 서식 포함)`, "ok");
+  return { cells: cells.length, merges: merges.length, bytes: zip.length, rows: rows.length + 2, cols: NC };
+}
+
 function exportCSV(){
   const S = STATE; if (!S) return;
   const rows = buildRows(S, $("#q").value.trim(), GROUP);
   const esc = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g,'""')}"` : v;
   const out = [];
-  out.push([...GCOLS.map(esc), ...S.weeks.map(w => esc(`${w.l1}${w.range}`)), esc(TOTCOL)].join(","));
+  out.push([...GCOLS.map(esc), ...AXIS().map(w => esc(`${w.l1}${w.range}`)), esc(TOTCOL)].join(","));
   for (const r of rows){
     let t = 0; for (let i = 0; i < r.v.length; i++) t += r.v[i];
     out.push([...r.g.map(esc), ...Array.from(r.v),
@@ -547,14 +1226,284 @@ function exportCSV(){
   a.click(); URL.revokeObjectURL(a.href);
 }
 
+
+
+/* ===== 이용자 수 계산 =====
+   식별번호 컬럼이 있을 때만 정확합니다.
+     · 로그인  : 식별번호로 중복 제거
+     · 비로그인: 빈칸 → 행마다 1명으로 계수 (PNU 도우미 등)
+   group/fam/chan 을 주면 그 범위만 셉니다. */
+function sliceStat(miFrom, miTo, opt){
+  const S = STATE;
+  opt = opt || {};
+  const nC = S.cidName.length;
+  const cmask = new Uint8Array(nC);
+  for (let i = 0; i < nC; i++){
+    const nm = S.cidName[i];
+    let ok = true;
+    if (opt.group && opt.group !== "전체") ok = chanGroup(nm) === opt.group;
+    if (ok && opt.chan) ok = nm === opt.chan;
+    cmask[i] = ok ? 1 : 0;
+  }
+  let fi = -1;
+  if (opt.fam) fi = S.famName.indexOf(opt.fam);
+  const seen = new Set();
+  let q = 0, anon = 0;
+  for (let i = 0; i < S.rowN; i++){
+    const m = S.aM[i];
+    if (m < miFrom || m > miTo) continue;
+    if (!cmask[S.aC[i]]) continue;
+    if (fi >= 0 && S.aF[i] !== fi) continue;
+    q++;
+    const u = S.aU[i];
+    if (u < 0) anon++; else seen.add(u);
+  }
+  return { q, uniq: seen.size, anon, users: seen.size + anon };
+}
+
+/* ================= 월간 보고 탭 =================
+   보고 양식: 가. 총괄표 / 나. 모델별 이용 현황
+   주의 — 원본 로그에 사용자 식별자가 없습니다. 사용자/이용자 수는
+   "고유 채널 ID 수" 를 대용으로 쓰며, 공용 채널에서는 과소 집계됩니다. */
+const FAM2RPT = { GPT: "ChatGPT", GEMINI: "Gemini", CLAUDE: "Claude",
+                  GEMMA: "Gemma", GROK: "Grok", 기타: "기타" };
+const RPT_ORDER = ["GPT", "GEMINI", "CLAUDE", "GEMMA", "GROK", "기타"];
+
+function reportCells(){
+  let cells = STATE.cells;
+  if (GROUP !== "전체") cells = cells.filter(c => chanGroup(c.name) === GROUP);
+  return cells;
+}
+
+/* 특정 월의 집계. fam / chan 을 주면 그 범위만. */
+function monthStat(mi, fam, chan){
+  const st = sliceStat(mi, mi, { group: GROUP, fam, chan });
+  return { q: st.q, u: STATE.hasUid ? st.users : cidCount(mi, mi, fam, chan),
+           uniq: st.uniq, anon: st.anon };
+}
+/* 첫 달 ~ 해당 월 누계 */
+function cumStat(mi, fam, chan){
+  const st = sliceStat(0, mi, { group: GROUP, fam, chan });
+  return { q: st.q, u: STATE.hasUid ? st.users : cidCount(0, mi, fam, chan),
+           uniq: st.uniq, anon: st.anon };
+}
+/* 식별번호 컬럼이 없을 때의 대용값 — 고유 채널 ID 수 */
+function cidCount(a, b, fam, chan){
+  const S = STATE;
+  const set = new Set();
+  const fi = fam ? S.famName.indexOf(fam) : -1;
+  for (let i = 0; i < S.rowN; i++){
+    const m = S.aM[i];
+    if (m < a || m > b) continue;
+    const nm = S.cidName[S.aC[i]];
+    if (GROUP !== "전체" && chanGroup(nm) !== GROUP) continue;
+    if (chan && nm !== chan) continue;
+    if (fi >= 0 && S.aF[i] !== fi) continue;
+    set.add(S.aC[i]);
+  }
+  return set.size;
+}
+
+const pctCell = (cur, prev) => {
+  if (prev == null) return `<td class="na">—</td>`;
+  if (prev === 0) return cur === 0 ? `<td class="na">—</td>` : `<td class="up">신규</td>`;
+  const r = (cur - prev) / prev * 100;
+  const cls = r > 0 ? "up" : (r < 0 ? "dn" : "");
+  const sign = r > 0 ? "▲" : (r < 0 ? "▼" : "");
+  return `<td class="${cls}">${sign}${Math.abs(r).toFixed(1)}%</td>`;
+};
+const per = (q, u) => u > 0 ? (q / u).toFixed(1) : "—";
+
+function renderReport(){
+  const S = STATE; if (!S) return;
+  const sel = $("#rmonth");
+  if (sel.options.length !== S.months.length){
+    sel.innerHTML = S.months.map((m, i) =>
+      `<option value="${i}">${m.start.slice(0,4)}년 ${m.l1}</option>`).join("");
+    sel.value = String(S.months.length - 1);
+  }
+  const mi = +sel.value;
+  const pi = mi - 1;
+  const mLabel = `${S.months[mi].start.slice(0,4)}년 ${S.months[mi].l1}`;
+
+  $("#rscope").innerHTML = `대상: <b>${escapeHtml(GROUP)}</b>`
+    + ` · 기간 ${S.months[mi].start} ~ ${S.months[mi].end}`
+    + ` · 누계는 ${S.months[0].start.slice(0,4)}년 ${S.months[0].l1} 부터`;
+
+  const cur = monthStat(mi), prev = pi >= 0 ? monthStat(pi) : null;
+  const cum = cumStat(mi);
+
+  // ---- 가. 총괄표 ----
+  const row = (label, c, p, k, fmtFn) => {
+    const cv = fmtFn(c), pv = p ? fmtFn(p) : "—";
+    return `<tr><td class="lbl">${label}</td>`
+         + `<td class="num">${pv}</td><td class="num">${cv}</td>`
+         + pctCell(c[k] ?? null, p ? p[k] : null)
+         + `<td class="num">${fmtFn(cum)}</td></tr>`;
+  };
+  $("#rpt1").innerHTML =
+    `<thead><tr><th style="width:26%">구분</th><th>전월</th><th>당월</th>`
+    + `<th>증감률</th><th>누계</th></tr></thead><tbody>`
+    + row("질의 건 수", cur, prev, "q", x => fmt(x.q))
+    + row("사용자 수", cur, prev, "u", x => fmt(x.u))
+    + row("이용자 수", cur, prev, "u", x => fmt(x.u))
+    + `<tr><td class="lbl">1인당 평균 질의 수</td>`
+    + `<td class="num">${prev ? per(prev.q, prev.u) : "—"}</td>`
+    + `<td class="num">${per(cur.q, cur.u)}</td>`
+    + pctCell(cur.u ? cur.q / cur.u : 0, prev && prev.u ? prev.q / prev.u : null)
+    + `<td class="num">${per(cum.q, cum.u)}</td></tr>`
+    + `</tbody>`;
+
+  // ---- 나. 모델별 이용 현황 ----
+  const fams = RPT_ORDER.filter(f => reportCells().some(c => c.fam === f));
+  let body = "", tq = 0, tu = new Set();
+  for (const f of fams){
+    const c = monthStat(mi, f), p = pi >= 0 ? monthStat(pi, f) : null;
+    tq += c.q;
+    body += `<tr><td class="lbl">${FAM2RPT[f] || f}</td>`
+         + `<td class="num">${fmt(c.q)}</td><td class="num">${fmt(c.u)}</td>`
+         + `<td class="num">${per(c.q, c.u)}</td>`
+         + pctCell(c.q, p ? p.q : null) + `</tr>`;
+  }
+  const ct = monthStat(mi), pt = pi >= 0 ? monthStat(pi) : null;
+  body += `<tr class="sum"><td class="lbl">계</td>`
+       + `<td class="num">${fmt(ct.q)}</td><td class="num">${fmt(ct.u)}</td>`
+       + `<td class="num">${per(ct.q, ct.u)}</td>`
+       + pctCell(ct.q, pt ? pt.q : null) + `</tr>`;
+  $("#rpt2").innerHTML =
+    `<thead><tr><th style="width:26%">AI 모델</th><th>질의 건 수</th>`
+    + `<th>이용자 수</th><th>1인당 질의 수</th><th>전월 대비</th></tr></thead><tbody>`
+    + body + `</tbody>`;
+
+  const uidNote = S.hasUid
+    ? `※ <b>이용자 수</b> = 식별번호 고유 수 + 비로그인(빈칸) 행 수.`
+      + ` 비로그인 이용은 식별할 수 없어 <b>행 하나를 1명으로</b> 셉니다.`
+      + ` 당월 식별된 인원 ${fmt(cur.uniq)}명 + 비로그인 ${fmt(cur.anon)}건.<br>`
+    : `※ <b>이용자 수 · 1인당 질의 수</b> — 로그에 <b>식별번호 컬럼이 없어</b>`
+      + ` <b>고유 채널 ID 수</b>로 대체한 값입니다. 공용 채널에서는 크게 과소 집계되므로`
+      + ` <b>그대로 보고에 쓰지 마세요.</b> 식별번호 컬럼이 포함된 로그를 넣으면 자동으로 정확히 계산됩니다.<br>`;
+  $("#rfoot").innerHTML =
+    `※ <b>질의 건 수</b> = 로그 행 수 (중복 제거 없음). 시각은 UTC → KST 변환 후 달력 월 기준.<br>`
+    + uidNote
+    + `※ 계열별 이용자 수의 합은 총계와 다릅니다 (한 사람이 여러 모델을 쓰면 중복 계수).<br>`
+    + `※ 증감률 = (당월 − 전월) ÷ 전월 × 100. 전월이 0이면 "신규", 첫 달은 "—".`;
+}
+
+
+/* 월간 보고 두 표를 서식 포함 xlsx 로 */
+function exportReportXLSX(){
+  if (!STATE) return;
+  const S = makeStyles();
+  const C = { hdr: "FFDEEAF6", sum: "FFF2F2F2" };
+  const fB = S.font(true, "FF1A1A1A", 10), fN = S.font(false, "FF1A1A1A", 10);
+  const bT = S.border("thin");
+  const xHdr = S.xf({ f: fB, fl: S.fill(C.hdr), b: bT, al: "center", num: 0 });
+  const xLbl = S.xf({ f: fB, fl: 0, b: bT, al: "center", num: 0 });
+  const xNum = S.xf({ f: fN, fl: 0, b: bT, al: "right",  num: 3 });
+  const xTxt = S.xf({ f: fN, fl: 0, b: bT, al: "right",  num: 0 });
+  const xSL  = S.xf({ f: fB, fl: S.fill(C.sum), b: bT, al: "center", num: 0 });
+  const xSN  = S.xf({ f: fB, fl: S.fill(C.sum), b: bT, al: "right",  num: 3 });
+  const xST  = S.xf({ f: fB, fl: S.fill(C.sum), b: bT, al: "right",  num: 0 });
+  const xTit = S.xf({ f: fB, fl: 0, b: 0, al: "left", num: 0 });
+
+  const cells = [];
+  const put = (r, c, v, t, st) => cells.push({ r, c, v, t, s: st });
+  // DOM 표를 그대로 읽어 같은 값 보장
+  let R = 0;
+  for (const [title, id] of [["가. 총괄표", "#rpt1"], ["나. 모델별 이용 현황", "#rpt2"]]){
+    put(R, 0, title, "s", xTit); R += 1;
+    const tb = $(id);
+    for (const tr of tb.querySelectorAll("tr")){
+      const isHead = tr.parentElement.tagName === "THEAD";
+      const isSum  = tr.classList.contains("sum");
+      [...tr.children].forEach((cell, ci) => {
+        const txt = cell.textContent.trim();
+        const plain = txt.replace(/,/g, "");
+        const isNum = ci > 0 && /^-?\d+(\.\d+)?$/.test(plain);
+        if (isHead)      put(R, ci, txt, "s", xHdr);
+        else if (ci === 0) put(R, ci, txt, "s", isSum ? xSL : xLbl);
+        else if (isNum)  put(R, ci, Number(plain), "n", isSum ? xSN : xNum);
+        else             put(R, ci, txt, "s", isSum ? xST : xTxt);
+      });
+      R += 1;
+    }
+    R += 1;
+  }
+  const mLabel = $("#rmonth").selectedOptions[0].textContent;
+  put(R, 0, `대상: ${GROUP} · ${mLabel}`, "s", xTit); R += 1;
+  put(R, 0, "※ 사용자/이용자 수는 고유 채널 ID 수 대용값 (로그에 사용자 식별자 없음)", "s", xTit);
+
+  const byRow = new Map();
+  for (const c of cells){ if (!byRow.has(c.r)) byRow.set(c.r, []); byRow.get(c.r).push(c); }
+  let sheet = "";
+  for (const [r, list] of [...byRow.entries()].sort((a, b) => a[0] - b[0])){
+    list.sort((a, b) => a.c - b.c);
+    sheet += `<row r="${r + 1}">` + list.map(c => {
+      const ref = colName(c.c) + (c.r + 1);
+      if (c.t === "n") return `<c r="${ref}" s="${c.s}"><v>${c.v}</v></c>`;
+      if (c.v === "")  return `<c r="${ref}" s="${c.s}"/>`;
+      return `<c r="${ref}" s="${c.s}" t="inlineStr"><is><t xml:space="preserve">${XQ(c.v)}</t></is></c>`;
+    }).join("") + `</row>`;
+  }
+  const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+    + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
+    + `<dimension ref="A1:E${R + 1}"/>`
+    + `<sheetViews><sheetView workbookViewId="0" showGridLines="0"/></sheetViews>`
+    + `<sheetFormatPr defaultRowHeight="15"/>`
+    + `<cols><col min="1" max="1" width="24" customWidth="1"/>`
+    + `<col min="2" max="5" width="15" customWidth="1"/></cols>`
+    + `<sheetData>${sheet}</sheetData></worksheet>`;
+  const name = "월간보고";
+  const files = [
+    { name: "[Content_Types].xml", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`
+      + `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>`
+      + `<Default Extension="xml" ContentType="application/xml"/>`
+      + `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>`
+      + `<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`
+      + `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>`
+      + `</Types>` },
+    { name: "_rels/.rels", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      + `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>`
+      + `</Relationships>` },
+    { name: "xl/workbook.xml", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"`
+      + ` xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`
+      + `<sheets><sheet name="${name}" sheetId="1" r:id="rId1"/></sheets></workbook>` },
+    { name: "xl/_rels/workbook.xml.rels", data:
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
+      + `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`
+      + `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>`
+      + `<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
+      + `</Relationships>` },
+    { name: "xl/styles.xml", data: S.xml() },
+    { name: "xl/worksheets/sheet1.xml", data: sheetXml },
+  ];
+  const zip = zipStore(files);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([zip], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  a.download = `월간보고_${mLabel.replace(/\s/g, "")}_${GROUP}.xlsx`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  setStatus(`월간 보고 엑셀을 내려받았습니다. (${mLabel} · ${GROUP})`, "ok");
+  return { cells: cells.length, bytes: zip.length };
+}
+
 /* ---------- 데이터 파일 자동 탐색 ----------
    index.html 과 같은 폴더에 아래 이름 중 하나가 있으면 자동으로 읽습니다.
    GitHub Pages 에 올릴 때는 이 파일도 같은 폴더에 함께 올리면 됩니다.          */
-const CANDIDATES = [
-  "로그데이터.xlsx",
-  "data.xlsx",
+/* 파일로 직접 열었는지(file://) — 그 경우 같은 폴더 파일을 자동으로 못 읽는다 */
+const IS_FILE = location.protocol === "file:";
+const DATA_DIR = "로그데이터/";     // 이 폴더 안의 모든 파일을 자동으로 합산
+const CANDIDATES = [               // 폴더가 없을 때 쓰는 단일 파일 후보
+  "로그데이터.xlsx", "로그.xlsx", "데이터.xlsx", "log.xlsx", "data.xlsx",
 ]
 
+/* ---------- 파일 읽기 ---------- */
 function isXlsx(name){ return /\.xlsx$/i.test(name); }
 
 /* xlsx 는 SheetJS 로 파싱해 CSV 문자열로 변환 */
@@ -584,7 +1533,7 @@ async function textFromBuffer(buf, name){
 }
 
 /* ---------- 실행 ---------- */
-let RUN = 0;
+let RUN = 0;          // 마지막 실행만 화면에 반영
 let LAST = null;      // {mode:'auto'} 또는 {mode:'files', files:[File]}
 
 async function runAggregate(tables, tzMode, my){
@@ -594,50 +1543,111 @@ async function runAggregate(tables, tzMode, my){
   STATE = aggregate(tables, tzMode);
   render();
   renderSrcStat();
+  showDrop(false);
   setStatus(`완료 — ${fmt(STATE.total)}건 / ${STATE.weeks.length}주차 · ${new Date().toLocaleString("ko-KR")}`, "ok");
 }
 
-/* 같은 폴더의 데이터 파일을 자동으로 불러온다 */
-async function loadAuto(){
+/* 로그데이터/ 폴더 안의 파일 목록을 찾는다.
+   (1) manifest.json 이 있으면 그걸 사용   ← GitHub Pages 등 목록을 안 주는 호스팅
+   (2) 없으면 폴더 목록 HTML 을 파싱        ← python http.server (열기.bat) */
+async function discoverFiles(){
+  // (1) manifest
+  try{
+    const r = await fetch(DATA_DIR + "manifest.json", { cache: "no-store" });
+    if (r.ok){
+      const j = await r.json();
+      const arr = Array.isArray(j) ? j : (j.files || []);
+      const names = arr.filter(n => typeof n === "string" && /\.(xlsx|csv|txt)$/i.test(n));
+      if (names.length) return names;
+    }
+  }catch(e){}
+  // (2) 디렉터리 목록 HTML
+  let html;
+  try{
+    const r = await fetch(DATA_DIR, { cache: "no-store" });
+    if (!r.ok) return null;
+    html = await r.text();
+  }catch(e){ return null; }
+  if (!/<a\s/i.test(html)) return null;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const names = [];
+  for (const a of doc.querySelectorAll("a[href]")){
+    const href = a.getAttribute("href");
+    if (!href || href.startsWith("/") || href.startsWith("?") || href.includes("..")) continue;
+    let nm;
+    try{ nm = decodeURIComponent(href.replace(/\/$/, "")); }catch(e){ nm = href; }
+    if (/\.(xlsx|csv|txt)$/i.test(nm) && !/^~\$/.test(nm)
+        && !/여기에_로그파일을_넣으세요|manifest/.test(nm)) names.push(nm);
+  }
+  return [...new Set(names)].sort();
+}
+
+async function loadAuto(silent){
   const my = ++RUN;
   LAST = { mode: "auto" };
   $("#reload").disabled = true;
   try{
+    // (1) 로그데이터/ 폴더 안의 모든 파일
+    const names = await discoverFiles();
+    if (names && names.length){
+      const tables = [], failed = [];
+      for (let i = 0; i < names.length; i++){
+        if (my !== RUN) return false;
+        const nm = names[i];
+        setStatus(`폴더에서 읽는 중… (${i+1}/${names.length}) ${nm}`, "info");
+        try{
+          const r = await fetch(DATA_DIR + encodeURIComponent(nm), { cache: "no-store" });
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const buf = await r.arrayBuffer();
+          if (isXlsx(nm)){
+            setStatus(`${nm} (${(buf.byteLength/1e6).toFixed(1)} MB) 변환 중…`
+                      + ` ${chr10()}xlsx 는 파일당 20초쯤 걸립니다.`, "info");
+            await new Promise(r2 => setTimeout(r2, 30));
+          }
+          tables.push({ tab: `${nm}  ${(buf.byteLength/1e6).toFixed(1)} MB`,
+                        text: await textFromBuffer(buf, nm) });
+        }catch(e){ failed.push({ label: nm, err: e.message }); }
+      }
+      if (!tables.length) throw new Error(`${DATA_DIR} 안의 파일을 읽지 못했습니다.${chr10()}`
+        + failed.map(f => `· ${f.label}: ${f.err}`).join(chr10()));
+      await runAggregate(tables, $("#tz").value, my);
+      if (STATE){ STATE.failed = failed; renderSrcStat(); }
+      return true;
+    }
+
+    // (2) 폴더가 없으면 루트의 단일 파일
     const tried = [];
     for (const name of CANDIDATES){
-      if (my !== RUN) return;
+      if (my !== RUN) return false;
       setStatus(`${name} 찾는 중…`, "info");
       let r;
       try{
         r = await fetch(encodeURI(name), { cache: "no-store" });
       }catch(e){
-        throw new Error(
-          location.protocol === "file:"
-            ? "페이지를 파일로 직접 열면(file://) 같은 폴더의 데이터 파일도 읽을 수 없습니다.\n" +
-              "GitHub Pages 주소로 열거나, 로컬에서는 아래처럼 서버로 띄우세요.\n" +
-              "  python -m http.server 8765   →   http://localhost:8765\n\n" +
-              "또는 '다른 파일 선택' 으로 직접 고르면 그대로 동작합니다."
-            : `네트워크 오류: ${e.message}`);
+        if (!silent) setStatus(`네트워크 오류: ${e.message}`, "err");
+        return false;
       }
       if (!r.ok){ tried.push(`${name} (HTTP ${r.status})`); continue; }
       const buf = await r.arrayBuffer();
       setStatus(`${name} (${(buf.byteLength/1e6).toFixed(1)} MB) 읽는 중…`
-                + (isXlsx(name) ? `
-xlsx 는 변환에 20초쯤 걸립니다. 잠시 기다려 주세요.` : ""), "info");
+                + (isXlsx(name) ? `${chr10()}xlsx 는 변환에 20초쯤 걸립니다. 잠시 기다려 주세요.` : ""), "info");
       await new Promise(r2 => setTimeout(r2, 30));
       const text = await textFromBuffer(buf, name);
       await runAggregate([{ tab: `${name}  ${(buf.byteLength/1e6).toFixed(1)} MB`, text }], $("#tz").value, my);
-      return;
+      return true;
     }
-    throw new Error("데이터 파일을 찾지 못했습니다.\n" +
-      `찾아본 이름: ${CANDIDATES.join(", ")}\n` + (tried.length ? `응답: ${tried.join(", ")}\n` : "") +
-      "\nmake_data.py 를 실행해 로그데이터.csv 를 만들고 index.html 과 같은 폴더에 두세요.");
+    if (!silent)
+      setStatus(`${DATA_DIR} 폴더도, ${CANDIDATES.join(" / ")} 도 찾지 못했습니다.`
+        + (tried.length ? ` (${tried.join(", ")})` : ""), "err");
+    return false;
   }catch(e){
-    if (my === RUN) setStatus("오류: " + e.message, "err");
+    if (my === RUN && !silent) setStatus("오류: " + e.message, "err");
+    return false;
   }finally{
-    if (my === RUN) $("#reload").disabled = false;
+    if (my === RUN) $("#reload").disabled = !LAST;
   }
 }
+function chr10(){ return String.fromCharCode(10); }
 
 /* 사용자가 직접 고른 파일들 */
 async function loadFiles(fileList){
@@ -675,32 +1685,109 @@ async function loadFiles(fileList){
 
 function reload(){
   if (LAST && LAST.mode === "files") loadFiles(LAST.files);
-  else loadAuto();
+  else if (!IS_FILE) loadAuto();
+  else setStatus("파일을 다시 선택해 주세요. (file:// 에서는 자동으로 읽을 수 없습니다)", "err");
 }
 
 function renderSrcStat(){
   const S = STATE; if (!S) return;
   const rows = S.srcStats.map(s =>
-    `<tr><td>${escapeHtml(s.label)}</td><td class="n">${fmt(s.raw)}행</td>` +
-    `<td>${s.bad ? `날짜 해석 불가 ${fmt(s.bad)}행 제외` : "―"}</td></tr>`);
+    `<tr><td>${escapeHtml(s.label)}</td><td class="n">${fmt(s.raw)}행</td>`
+    + `<td>${s.bad ? `날짜 해석 불가 ${fmt(s.bad)}행 제외` : "―"}</td>`
+    + `<td class="${s.cross ? "bad" : ""}">${s.cross ? `다른 파일과 겹침 ${fmt(s.cross)}건` : "―"}</td></tr>`);
   for (const f of (S.failed || []))
-    rows.push(`<tr><td class="bad">${escapeHtml(f.label)}</td><td class="bad" colspan="2">${escapeHtml(f.err)}</td></tr>`);
-  $("#srcstat").innerHTML = `<table>${rows.join("")}</table>`;
+    rows.push(`<tr><td class="bad">${escapeHtml(f.label)}</td><td class="bad" colspan="3">${escapeHtml(f.err)}</td></tr>`);
+  let warn = "";
+  if (S.crossDup > 0){
+    warn = `<div class="dupwarn"><b>⚠ 파일 간 중복 ${fmt(S.crossDup)}건</b> — `
+      + `서로 다른 파일에 같은 Chat ID 가 들어 있습니다. `
+      + `중복 제거를 하지 않으므로 <b>그만큼 건수가 부풀려집니다.</b> `
+      + `겹치는 파일 하나를 폴더에서 빼주세요.<br>`
+      + S.crossPairs.slice(0, 5).map(([k, n]) => `· ${escapeHtml(k)} : ${fmt(n)}건`).join("<br>")
+      + (S.crossPairs.length > 5 ? `<br>· … 외 ${S.crossPairs.length - 5}쌍` : "")
+      + `</div>`;
+  }
+  $("#srcstat").innerHTML = warn
+    + `<table>${rows.join("")}</table>`
+    + `<div class="srcsum">파일 ${fmt(S.nFiles || S.srcStats.length)}개 · 읽은 행 ${fmt(S.nRaw)} · 집계 ${fmt(S.total)}건</div>`;
   $("#srcstat").className = "on";
 }
 
 $("#pick").onclick   = () => $("#files").click();
+$("#pick2").onclick  = () => $("#files").click();
+
+const drop = $("#drop");
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.add("over");
+}));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => {
+  e.preventDefault(); drop.classList.remove("over");
+}));
+drop.addEventListener("drop", e => {
+  if (e.dataTransfer && e.dataTransfer.files.length) loadFiles(e.dataTransfer.files);
+});
+// 페이지 어디에 놓아도 받도록
+["dragover","drop"].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
 $("#files").onchange = e => loadFiles(e.target.files);
 $("#reload").onclick = reload;
 $("#csv").onclick    = exportCSV;
+$("#xlsx").onclick   = exportXLSXStyled;
 $("#q").oninput      = () => { if (STATE) render(); };
-$("#tz").onchange    = () => { try{ localStorage.setItem(LS, JSON.stringify({ tz: $("#tz").value })); }catch(e){} reload(); };
+function setDepth(d){
+  DEPTH = d;
+  FOLD_CH.clear(); FOLD_FAM.clear();
+  if (!STATE) return;
+  if (d === "chan"){
+    for (const c of STATE.cells) FOLD_CH.add(c.name);
+  } else if (d === "fam"){
+    for (const c of STATE.cells) FOLD_FAM.add(c.name + " " + c.fam);
+  }
+  render();
+}
+for (const b of document.querySelectorAll("#depth button"))
+  b.onclick = () => setDepth(b.dataset.d);
+
+$("#rmonth").onchange = () => renderReport();
+$("#rxlsx").onclick   = () => exportReportXLSX();
+
+for (const b of document.querySelectorAll("#tabs button"))
+  b.onclick = () => {
+    if (PERIOD === b.dataset.p) return;
+    PERIOD = b.dataset.p;
+    FOCUSED = false;                 // 탭을 바꾸면 오늘 위치로 다시 이동
+    render();
+  };
+$("#tz").onchange    = () => {
+  try{ localStorage.setItem(LS, JSON.stringify({ tz: $("#tz").value })); }catch(e){}
+  if (LAST) reload();
+};
 
 try{
   const c = JSON.parse(localStorage.getItem(LS) || "{}");
   if (c.tz) $("#tz").value = c.tz;
 }catch(e){}
-loadAuto();
+
+function showDrop(on){ $("#drop").classList.toggle("hide", !on); }
+
+(async () => {
+  // http/https 로 열렸으면 같은 폴더의 xlsx 를 자동으로 읽는다 (열기.bat)
+  if (!IS_FILE){
+    const ok = await loadAuto(true);
+    if (ok) return;
+    showDrop(true);
+    setStatus(`같은 폴더에서 ${CANDIDATES.join(" 또는 ")} 을 찾지 못했습니다. 파일을 직접 선택하세요.`, "err");
+    return;
+  }
+  // file:// (index.html 더블클릭) 에서는 브라우저가 옆 파일을 못 읽으므로 직접 선택
+  showDrop(true);
+  $("#dropTitle").textContent = "로그데이터.xlsx 를 여기로 끌어다 놓으세요";
+  $("#dropNote").innerHTML =
+    "이 페이지를 파일로 직접 열었기 때문에(<code>file://</code>) 브라우저가 같은 폴더의 xlsx 를 "
+    + "자동으로 읽지 못합니다. 위로 끌어다 놓거나 아래 버튼으로 고르세요. (변환에 20초쯤)"
+    + "<br><b>한 번 읽은 뒤 상단의 ‘데이터.js 저장’ 을 눌러 같은 폴더에 두면, "
+    + "다음부터는 이 파일을 더블클릭하는 것만으로 바로 열립니다.</b>";
+  setStatus("데이터 파일을 선택하면 집계를 시작합니다.", "info");
+})();
 </script>
 </body>
 </html>
