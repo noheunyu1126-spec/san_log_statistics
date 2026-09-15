@@ -157,6 +157,7 @@
   table.rpt td.num{text-align:right;font-variant-numeric:tabular-nums}
   table.rpt td.lbl{background:#fff;font-weight:600}
   table.rpt tr.sum td{background:#F2F2F2;font-weight:700}
+  table.rpt td.grp{background:#fff;font-weight:700;vertical-align:middle}
   table.rpt td.up{color:#C00000}
   table.rpt td.dn{color:#1F4E79}
   table.rpt td.na{color:#9AA3AB}
@@ -695,9 +696,9 @@ function render(){
   $("#mainview").hidden   = PERIOD === "report";
   $("#reportview").hidden = PERIOD !== "report";
   $("#cards").hidden = PERIOD === "report";
+  $("#chips").closest(".chipwrap").hidden = PERIOD === "report";
   if (PERIOD === "report"){
     $("#out").hidden = false;
-    renderChips();
     renderReport();
     $("#csv").disabled = false;
     document.title = "월간 보고 — 질의답변수";
@@ -1243,6 +1244,7 @@ function sliceStat(miFrom, miTo, opt){
     let ok = true;
     if (opt.group && opt.group !== "전체") ok = chanGroup(nm) === opt.group;
     if (ok && opt.chan) ok = nm === opt.chan;
+    if (ok && opt.chanMatch) ok = opt.chanMatch(nm);
     cmask[i] = ok ? 1 : 0;
   }
   let fi = -1;
@@ -1262,57 +1264,67 @@ function sliceStat(miFrom, miTo, opt){
 }
 
 /* ================= 월간 보고 탭 =================
-   보고 양식: 가. 총괄표 / 나. 모델별 이용 현황
-   주의 — 원본 로그에 사용자 식별자가 없습니다. 사용자/이용자 수는
-   "고유 채널 ID 수" 를 대용으로 쓰며, 공용 채널에서는 과소 집계됩니다. */
+   가. 총괄표            구분 | 누계 | 당월 | 전월 | 증감률
+   나. 모델별 이용 현황   구분 | AI 모델 | 질의 건 수 | 이용자 수 | 1인당 질의 수 | 전월 대비
+
+   · 이용자 수(가) : 로그로 알 수 없어 비워 둔다 (별도 시스템 값)
+   · 실 사용자 수  : 고유 식별번호 수 + 비로그인(빈칸) 행 수
+   · 구버전 채널   : 본 채널에 합산 (PNU 도우미 (구버전) -> PNU 도우미)              */
+
 const FAM2RPT = { GPT: "ChatGPT", GEMINI: "Gemini", CLAUDE: "Claude",
-                  GEMMA: "Gemma", GROK: "Grok", 기타: "기타" };
-const RPT_ORDER = ["GPT", "GEMINI", "CLAUDE", "GEMMA", "GROK", "기타"];
+                  GEMMA: "Gemma", GROK: "Grok" };
+const FAM_ROWS = ["GPT", "GEMINI", "CLAUDE", "GEMMA", "GROK"];
 
-function reportCells(){
-  let cells = STATE.cells;
-  if (GROUP !== "전체") cells = cells.filter(c => chanGroup(c.name) === GROUP);
-  return cells;
-}
-
-/* 특정 월의 집계. fam / chan 을 주면 그 범위만. */
-function monthStat(mi, fam, chan){
-  const st = sliceStat(mi, mi, { group: GROUP, fam, chan });
-  return { q: st.q, u: STATE.hasUid ? st.users : cidCount(mi, mi, fam, chan),
-           uniq: st.uniq, anon: st.anon };
-}
-/* 첫 달 ~ 해당 월 누계 */
-function cumStat(mi, fam, chan){
-  const st = sliceStat(0, mi, { group: GROUP, fam, chan });
-  return { q: st.q, u: STATE.hasUid ? st.users : cidCount(0, mi, fam, chan),
-           uniq: st.uniq, anon: st.anon };
-}
-/* 식별번호 컬럼이 없을 때의 대용값 — 고유 채널 ID 수 */
-function cidCount(a, b, fam, chan){
-  const S = STATE;
-  const set = new Set();
-  const fi = fam ? S.famName.indexOf(fam) : -1;
-  for (let i = 0; i < S.rowN; i++){
-    const m = S.aM[i];
-    if (m < a || m > b) continue;
-    const nm = S.cidName[S.aC[i]];
-    if (GROUP !== "전체" && chanGroup(nm) !== GROUP) continue;
-    if (chan && nm !== chan) continue;
-    if (fi >= 0 && S.aF[i] !== fi) continue;
-    set.add(S.aC[i]);
-  }
-  return set.size;
+const nz = x => String(x).replace(/\s+/g, "");
+/* 채널명이 기준 채널(또는 그 구버전)인지 */
+function sameChan(nm, base){
+  const n = nz(nm), b = nz(base);
+  return n === b || n === b + "(구버전)";
 }
 
-const pctCell = (cur, prev) => {
-  if (prev == null) return `<td class="na">—</td>`;
-  if (prev === 0) return cur === 0 ? `<td class="na">—</td>` : `<td class="up">신규</td>`;
+const RPT_GROUPS = [
+  { name: "MCP Beta", kind: "fam",
+    match: nm => nz(nm) === "MCPBeta",
+    rows: FAM_ROWS.map(f => ({ label: FAM2RPT[f], fam: f })) },
+  { name: "PNU AI 에이전트", kind: "chan",
+    rows: ["PNU 도우미", "행정 도우미", "학사 도우미"].map(c =>
+      ({ label: c, chanMatch: nm => sameChan(nm, c) })) },
+];
+
+/* 한 칸(구분 x 행)의 월 집계 */
+function rptCell(mi, g, row){
+  const opt = {};
+  if (g.kind === "fam"){ opt.chanMatch = g.match; opt.fam = row.fam; }
+  else                 { opt.chanMatch = row.chanMatch; }
+  const st = sliceStat(mi, mi, opt);
+  return { q: st.q, u: STATE.hasUid ? st.users : null, uniq: st.uniq, anon: st.anon };
+}
+const inReport = nm => RPT_GROUPS.some(g => g.kind === "fam"
+  ? g.match(nm) : g.rows.some(r => r.chanMatch(nm)));
+/* 보고서에 포함된 채널 전체 합 (계 행) */
+function rptTotal(a, b){
+  const st = sliceStat(a, b, { chanMatch: inReport });
+  return { q: st.q, u: STATE.hasUid ? st.users : null, uniq: st.uniq, anon: st.anon };
+}
+
+const per1 = (q, u) => (u && u > 0) ? (q / u).toFixed(1) : "—";
+const pctCell = (cur, prev, ci) => {
+  const A = ci == null ? "" : ` data-c="${ci}"`;
+  if (prev == null) return `<td class="na"${A}>—</td>`;
+  if (prev === 0) return cur === 0 ? `<td class="na"${A}>—</td>` : `<td class="up"${A}>신규</td>`;
   const r = (cur - prev) / prev * 100;
   const cls = r > 0 ? "up" : (r < 0 ? "dn" : "");
   const sign = r > 0 ? "▲" : (r < 0 ? "▼" : "");
-  return `<td class="${cls}">${sign}${Math.abs(r).toFixed(1)}%</td>`;
+  return `<td class="${cls}"${A}>${sign}${Math.abs(r).toFixed(1)}%</td>`;
 };
-const per = (q, u) => u > 0 ? (q / u).toFixed(1) : "—";
+/* 전월 대비 — 건수 차이(부호 포함) */
+const diffCell = (cur, prev, ci) => {
+  const A = ci == null ? "" : ` data-c="${ci}"`;
+  if (prev == null) return `<td class="na"${A}>—</td>`;
+  const d = cur - prev;
+  if (d === 0) return `<td${A}>0</td>`;
+  return `<td class="${d > 0 ? "up" : "dn"}"${A}>${d > 0 ? "+" : "-"}${fmt(Math.abs(d))}</td>`;
+};
 
 function renderReport(){
   const S = STATE; if (!S) return;
@@ -1322,73 +1334,82 @@ function renderReport(){
       `<option value="${i}">${m.start.slice(0,4)}년 ${m.l1}</option>`).join("");
     sel.value = String(S.months.length - 1);
   }
-  const mi = +sel.value;
-  const pi = mi - 1;
-  const mLabel = `${S.months[mi].start.slice(0,4)}년 ${S.months[mi].l1}`;
+  const mi = +sel.value, pi = mi - 1;
 
-  $("#rscope").innerHTML = `대상: <b>${escapeHtml(GROUP)}</b>`
-    + ` · 기간 ${S.months[mi].start} ~ ${S.months[mi].end}`
-    + ` · 누계는 ${S.months[0].start.slice(0,4)}년 ${S.months[0].l1} 부터`;
+  $("#rscope").innerHTML = `기간 ${S.months[mi].start} ~ ${S.months[mi].end}`
+    + ` · 누계는 ${S.months[0].start.slice(0,4)}년 ${S.months[0].l1} 부터`
+    + (S.hasUid ? "" : ' · <b style="color:#8a1c1c">식별번호 컬럼 없음</b>');
 
-  const cur = monthStat(mi), prev = pi >= 0 ? monthStat(pi) : null;
-  const cum = cumStat(mi);
+  const cur = rptTotal(mi, mi), prev = pi >= 0 ? rptTotal(pi, pi) : null;
+  const cum = rptTotal(0, mi);
 
-  // ---- 가. 총괄표 ----
-  const row = (label, c, p, k, fmtFn) => {
-    const cv = fmtFn(c), pv = p ? fmtFn(p) : "—";
-    return `<tr><td class="lbl">${label}</td>`
-         + `<td class="num">${pv}</td><td class="num">${cv}</td>`
-         + pctCell(c[k] ?? null, p ? p[k] : null)
-         + `<td class="num">${fmtFn(cum)}</td></tr>`;
-  };
+  /* 가. 총괄표 */
+  const r1 = (label, pick, fmtFn) =>
+    `<tr><td class="lbl" data-c="0">${label}</td>`
+    + `<td class="num" data-c="1">${fmtFn(cum)}</td>`
+    + `<td class="num" data-c="2">${fmtFn(cur)}</td>`
+    + `<td class="num" data-c="3">${prev ? fmtFn(prev) : "—"}</td>`
+    + pctCell(pick(cur), prev ? pick(prev) : null, 4) + "</tr>";
   $("#rpt1").innerHTML =
-    `<thead><tr><th style="width:26%">구분</th><th>전월</th><th>당월</th>`
-    + `<th>증감률</th><th>누계</th></tr></thead><tbody>`
-    + row("질의 건 수", cur, prev, "q", x => fmt(x.q))
-    + row("사용자 수", cur, prev, "u", x => fmt(x.u))
-    + row("이용자 수", cur, prev, "u", x => fmt(x.u))
-    + `<tr><td class="lbl">1인당 평균 질의 수</td>`
-    + `<td class="num">${prev ? per(prev.q, prev.u) : "—"}</td>`
-    + `<td class="num">${per(cur.q, cur.u)}</td>`
-    + pctCell(cur.u ? cur.q / cur.u : 0, prev && prev.u ? prev.q / prev.u : null)
-    + `<td class="num">${per(cum.q, cum.u)}</td></tr>`
-    + `</tbody>`;
+    '<thead><tr><th style="width:26%" data-c="0">구분</th><th data-c="1">누계</th>'
+    + '<th data-c="2">당월</th><th data-c="3">전월</th><th data-c="4">증감률</th></tr></thead><tbody>'
+    + r1("질의 건 수", x => x.q, x => fmt(x.q))
+    + '<tr><td class="lbl" data-c="0">이용자 수</td><td class="na" data-c="1">—</td>'
+    + '<td class="na" data-c="2">—</td><td class="na" data-c="3">—</td><td class="na" data-c="4">—</td></tr>'
+    + r1("실 사용자 수", x => x.u, x => x.u == null ? "—" : fmt(x.u))
+    + '<tr><td class="lbl" data-c="0">1인당 평균 질의 수</td>'
+    + `<td class="num" data-c="1">${per1(cum.q, cum.u)}</td>`
+    + `<td class="num" data-c="2">${per1(cur.q, cur.u)}</td>`
+    + `<td class="num" data-c="3">${prev ? per1(prev.q, prev.u) : "—"}</td>`
+    + pctCell(cur.u ? cur.q / cur.u : null, (prev && prev.u) ? prev.q / prev.u : null, 4)
+    + "</tbody>";
 
-  // ---- 나. 모델별 이용 현황 ----
-  const fams = RPT_ORDER.filter(f => reportCells().some(c => c.fam === f));
-  let body = "", tq = 0, tu = new Set();
-  for (const f of fams){
-    const c = monthStat(mi, f), p = pi >= 0 ? monthStat(pi, f) : null;
-    tq += c.q;
-    body += `<tr><td class="lbl">${FAM2RPT[f] || f}</td>`
-         + `<td class="num">${fmt(c.q)}</td><td class="num">${fmt(c.u)}</td>`
-         + `<td class="num">${per(c.q, c.u)}</td>`
-         + pctCell(c.q, p ? p.q : null) + `</tr>`;
+  /* 나. 모델별 이용 현황 */
+  let body = "";
+  for (const g of RPT_GROUPS){
+    g.rows.forEach((row, i) => {
+      const c = rptCell(mi, g, row);
+      const p = pi >= 0 ? rptCell(pi, g, row) : null;
+      body += "<tr>"
+        + (i === 0 ? `<td class="lbl grp" data-c="0" rowspan="${g.rows.length}">${escapeHtml(g.name)}</td>` : "")
+        + `<td class="lbl" data-c="1">${escapeHtml(row.label)}</td>`
+        + `<td class="num" data-c="2">${fmt(c.q)}</td>`
+        + `<td class="num" data-c="3">${c.u == null ? "—" : fmt(c.u)}</td>`
+        + `<td class="num" data-c="4">${per1(c.q, c.u)}</td>`
+        + diffCell(c.q, p ? p.q : null, 5) + "</tr>";
+    });
   }
-  const ct = monthStat(mi), pt = pi >= 0 ? monthStat(pi) : null;
-  body += `<tr class="sum"><td class="lbl">계</td>`
-       + `<td class="num">${fmt(ct.q)}</td><td class="num">${fmt(ct.u)}</td>`
-       + `<td class="num">${per(ct.q, ct.u)}</td>`
-       + pctCell(ct.q, pt ? pt.q : null) + `</tr>`;
+  body += '<tr class="sum"><td class="lbl" data-c="0" colspan="2">계</td>'
+       + `<td class="num" data-c="2">${fmt(cur.q)}</td>`
+       + `<td class="num" data-c="3">${cur.u == null ? "—" : fmt(cur.u)}</td>`
+       + `<td class="num" data-c="4">${per1(cur.q, cur.u)}</td>`
+       + diffCell(cur.q, prev ? prev.q : null, 5) + "</tr>";
   $("#rpt2").innerHTML =
-    `<thead><tr><th style="width:26%">AI 모델</th><th>질의 건 수</th>`
-    + `<th>이용자 수</th><th>1인당 질의 수</th><th>전월 대비</th></tr></thead><tbody>`
-    + body + `</tbody>`;
+    '<thead><tr><th style="width:15%" data-c="0">구분</th><th style="width:15%" data-c="1">AI 모델</th>'
+    + '<th data-c="2">질의 건 수</th><th data-c="3">이용자 수</th><th data-c="4">1인당 질의 수</th><th data-c="5">전월 대비</th>'
+    + `</tr></thead><tbody>${body}</tbody>`;
 
-  const uidNote = S.hasUid
-    ? `※ <b>이용자 수</b> = 식별번호 고유 수 + 비로그인(빈칸) 행 수.`
-      + ` 비로그인 이용은 식별할 수 없어 <b>행 하나를 1명으로</b> 셉니다.`
-      + ` 당월 식별된 인원 ${fmt(cur.uniq)}명 + 비로그인 ${fmt(cur.anon)}건.<br>`
-    : `※ <b>이용자 수 · 1인당 질의 수</b> — 로그에 <b>식별번호 컬럼이 없어</b>`
-      + ` <b>고유 채널 ID 수</b>로 대체한 값입니다. 공용 채널에서는 크게 과소 집계되므로`
-      + ` <b>그대로 보고에 쓰지 마세요.</b> 식별번호 컬럼이 포함된 로그를 넣으면 자동으로 정확히 계산됩니다.<br>`;
+  /* 각주 */
+  const excluded = [...new Set(S.cidName.filter(nm => !inReport(nm)))];
+  const exQ = sliceStat(mi, mi, { chanMatch: nm => !inReport(nm) }).q;
   $("#rfoot").innerHTML =
-    `※ <b>질의 건 수</b> = 로그 행 수 (중복 제거 없음). 시각은 UTC → KST 변환 후 달력 월 기준.<br>`
-    + uidNote
-    + `※ 계열별 이용자 수의 합은 총계와 다릅니다 (한 사람이 여러 모델을 쓰면 중복 계수).<br>`
-    + `※ 증감률 = (당월 − 전월) ÷ 전월 × 100. 전월이 0이면 "신규", 첫 달은 "—".`;
+    "※ <b>질의 건 수</b> = 로그 행 수 (중복 제거 없음). 시각은 UTC → KST 변환 후 달력 월 기준.<br>"
+    + "※ <b>이용자 수</b>(가. 총괄표)는 로그로 알 수 없어 비워 두었습니다. 별도 시스템 값을 넣으세요.<br>"
+    + (S.hasUid
+        ? "※ <b>실 사용자 수</b> · <b>이용자 수</b>(나. 모델별) = 식별번호 고유 수 + 비로그인(빈칸) 행 수."
+          + ` 당월 식별 ${fmt(cur.uniq)}명 + 비로그인 ${fmt(cur.anon)}건.<br>`
+        : "※ <b>실 사용자 수</b> — 로그에 <b>식별번호 컬럼이 없어</b> 계산할 수 없습니다."
+          + " 식별번호가 포함된 로그를 넣으면 자동 계산됩니다.<br>")
+    + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미).<br>"
+    + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
+    + "※ <b>계</b> 는 위 표의 채널만 더한 값입니다. 보고에서 빠진 채널 "
+    + `${excluded.length}개 · 당월 ${fmt(exQ)}건`
+    + (excluded.length
+        ? ` (${excluded.slice(0,6).map(escapeHtml).join(", ")}`
+          + (excluded.length > 6 ? ` 외 ${excluded.length-6}개` : "") + ")"
+        : "")
+    + ".";
 }
-
 
 /* 월간 보고 두 표를 서식 포함 xlsx 로 */
 function exportReportXLSX(){
@@ -1416,7 +1437,8 @@ function exportReportXLSX(){
     for (const tr of tb.querySelectorAll("tr")){
       const isHead = tr.parentElement.tagName === "THEAD";
       const isSum  = tr.classList.contains("sum");
-      [...tr.children].forEach((cell, ci) => {
+      [...tr.children].forEach((cell, idx) => {
+        const ci = cell.dataset.c != null ? +cell.dataset.c : idx;
         const txt = cell.textContent.trim();
         const plain = txt.replace(/,/g, "");
         const isNum = ci > 0 && /^-?\d+(\.\d+)?$/.test(plain);
@@ -1431,7 +1453,11 @@ function exportReportXLSX(){
   }
   const mLabel = $("#rmonth").selectedOptions[0].textContent;
   put(R, 0, `대상: ${GROUP} · ${mLabel}`, "s", xTit); R += 1;
-  put(R, 0, "※ 사용자/이용자 수는 고유 채널 ID 수 대용값 (로그에 사용자 식별자 없음)", "s", xTit);
+  put(R, 0, STATE.hasUid
+      ? "※ 실 사용자 수 = 식별번호 고유 수 + 비로그인(빈칸) 행 수 · 구버전 채널은 본 채널에 합산"
+      : "※ 실 사용자 수 — 로그에 식별번호 컬럼이 없어 계산할 수 없습니다", "s", xTit);
+  R += 1;
+  put(R, 0, "※ 이용자 수(가. 총괄표)는 로그로 알 수 없어 비워 둠 · 계 = 위 표의 채널만 합산", "s", xTit);
 
   const byRow = new Map();
   for (const c of cells){ if (!byRow.has(c.r)) byRow.set(c.r, []); byRow.get(c.r).push(c); }
@@ -1447,7 +1473,7 @@ function exportReportXLSX(){
   }
   const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`
     + `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">`
-    + `<dimension ref="A1:E${R + 1}"/>`
+    + `<dimension ref="A1:F${R + 1}"/>`
     + `<sheetViews><sheetView workbookViewId="0" showGridLines="0"/></sheetViews>`
     + `<sheetFormatPr defaultRowHeight="15"/>`
     + `<cols><col min="1" max="1" width="24" customWidth="1"/>`
