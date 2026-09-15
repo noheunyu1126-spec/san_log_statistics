@@ -1247,15 +1247,19 @@ function sliceStat(miFrom, miTo, opt){
     if (ok && opt.chanMatch) ok = opt.chanMatch(nm);
     cmask[i] = ok ? 1 : 0;
   }
-  let fi = -1;
-  if (opt.fam) fi = S.famName.indexOf(opt.fam);
+  let fi = null;
+  if (opt.fam){
+    const k = S.famName.indexOf(opt.fam);
+    if (k < 0) return { q: 0, uniq: 0, anon: 0, users: 0 };   // 데이터에 없는 계열
+    fi = k;
+  }
   const seen = new Set();
   let q = 0, anon = 0;
   for (let i = 0; i < S.rowN; i++){
     const m = S.aM[i];
     if (m < miFrom || m > miTo) continue;
     if (!cmask[S.aC[i]]) continue;
-    if (fi >= 0 && S.aF[i] !== fi) continue;
+    if (fi !== null && S.aF[i] !== fi) continue;
     q++;
     const u = S.aU[i];
     if (u < 0) anon++; else seen.add(u);
