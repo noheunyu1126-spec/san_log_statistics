@@ -60,6 +60,20 @@
   .dupwarn{background:#fdecec;border:1px solid #f3c2c2;color:#8a1c1c;
         border-radius:5px;padding:9px 11px;margin-bottom:8px;font-size:12px;line-height:1.6}
   .srcsum{margin-top:5px;color:var(--ink-2)}
+  details.srcfold{margin-top:2px}
+  details.srcfold>summary{cursor:pointer;list-style:none;display:inline-flex;
+        align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--bd-l);
+        border-radius:6px;background:#fff;color:var(--ink-2);font-size:11px;
+        user-select:none}
+  details.srcfold>summary::-webkit-details-marker{display:none}
+  details.srcfold>summary:hover{background:#eef4fa;border-color:var(--navy)}
+  details.srcfold>summary b{color:var(--ink)}
+  details.srcfold>summary .srchint{color:var(--navy);font-weight:600}
+  details.srcfold>summary .srchint::before{content:"▸ "}
+  details.srcfold[open]>summary .srchint::before{content:"▾ "}
+  details.srcfold[open]>summary .srchint{visibility:visible}
+  details.srcfold>summary .bad{color:#8a1c1c;font-weight:600}
+  details.srcfold>table{margin-top:7px}
   input:focus,select:focus,textarea:focus{outline:2px solid rgba(31,78,121,.35);outline-offset:-1px;border-color:var(--navy)}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
   button{padding:8px 15px;border:1px solid var(--navy);background:var(--navy);color:#fff;
@@ -1836,9 +1850,17 @@ function renderSrcStat(){
       + (S.crossPairs.length > 5 ? `<br>· … 외 ${S.crossPairs.length - 5}쌍` : "")
       + `</div>`;
   }
+  // 파일 목록은 기본 접힘 — 요약 줄을 누르면 펼쳐진다 (파일이 수십 개가 되므로)
+  const nf = S.nFiles || S.srcStats.length;
+  const bad = (S.failed || []).length;
   $("#srcstat").innerHTML = warn
+    + `<details class="srcfold"${bad ? " open" : ""}>`
+    + `<summary>읽은 파일 <b>${fmt(nf)}개</b>`
+    + ` · ${fmt(S.nRaw)}행 → 집계 <b>${fmt(S.total)}건</b>`
+    + (bad ? ` · <span class="bad">실패 ${bad}개</span>` : "")
+    + `<span class="srchint">목록 보기</span></summary>`
     + `<table>${rows.join("")}</table>`
-    + `<div class="srcsum">파일 ${fmt(S.nFiles || S.srcStats.length)}개 · 읽은 행 ${fmt(S.nRaw)} · 집계 ${fmt(S.total)}건</div>`;
+    + `</details>`;
   $("#srcstat").className = "on";
 }
 
