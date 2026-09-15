@@ -1,0 +1,8 @@
+# Excel 이 파일을 열어두면 만드는 임시 파일
+~$*
+*.tmp
+
+# Windows / macOS 잡파일
+Thumbs.db
+desktop.ini
+.DS_Store

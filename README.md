@@ -7,7 +7,8 @@ index.html          집계표 화면
 로그데이터/          여기에 로그 xlsx 를 넣습니다
   ├─ manifest.json   ← 파일 목록 (목록갱신.bat 이 만들어 줍니다)
   └─ (로그 파일들)
-목록갱신.bat         manifest.json 다시 만들기
+목록갱신.bat         manifest.json 다시 만들기 (이걸 더블클릭)
+update_manifest.ps1  실제 로직 — 배치가 호출합니다
 ```
 
 ---
@@ -46,16 +47,26 @@ GitHub 웹사이트 드래그 업로드는 파일당 25MB까지입니다. 그보
 > 중복 제거를 하지 않습니다. 같은 기간이 든 파일을 두 개 넣으면 건수가 두 배가 됩니다.
 > 겹치면 화면 상단에 **빨간 경고**가 뜨니 확인하세요.
 
-### 2) `목록갱신.bat` 더블클릭
+### 2) (공개 저장소면 생략 가능)
 
-GitHub Pages 는 폴더 목록을 알려주지 않으므로, 페이지가 읽을 **파일 목록**을 만들어야 합니다.
-파일을 넣거나 뺀 뒤에는 **매번 실행**하세요. `로그데이터/manifest.json` 이 갱신됩니다.
+페이지가 파일 목록을 찾는 순서는 이렇습니다.
+
+| 순서 | 방법 | 쓰이는 곳 |
+|---|---|---|
+| 1 | 폴더 목록 HTML | 로컬 `열기.bat` (python 서버) |
+| 2 | **GitHub API** | **github.io + 공개 저장소 — 자동, 갱신 불필요** |
+| 3 | `manifest.json` | 비공개 저장소 · 다른 호스팅 |
+
+**공개 저장소라면 아무것도 안 해도 됩니다.** 파일을 올리면 GitHub API 로 목록을 바로 읽습니다.
+
+비공개 저장소이거나 GitHub API 호출 한도(시간당 60회)를 넘겼을 때만
+`목록갱신.bat` 을 실행해 `manifest.json` 을 만들어 두세요.
 
 ### 3) 올리기
 
 ```bash
 git init
-git add index.html 로그데이터 목록갱신.bat README.md
+git add index.html 로그데이터 README.md
 git commit -m "집계표 사이트"
 git branch -M main
 git remote add origin https://github.com/<계정>/<저장소>.git
@@ -96,3 +107,27 @@ python -m http.server 8000
 - CSV 내려받기
 
 자세한 집계 규칙은 로컬 버전의 `web/README.md` 를 참고하세요. 동일한 규칙을 씁니다.
+
+---
+
+## 파일을 못 찾는다고 나올 때
+
+화면에 `같은 폴더에서 로그데이터.xlsx ... 을 찾지 못했습니다` 가 뜨면
+**`manifest.json` 이 비어 있거나 없는 것**입니다. 아래 순서로 확인하세요.
+
+1. `로그데이터/` 폴더에 xlsx 파일이 실제로 있는지
+2. **`목록갱신.bat` 을 실행**했는지 → `로그데이터/manifest.json` 을 열어
+   파일명이 적혀 있어야 합니다
+   ```json
+   { "files": [ "expansion_logs_2025-12-01_....xlsx" ] }
+   ```
+3. `manifest.json` 과 로그 파일을 **둘 다** git 으로 올렸는지
+4. 브라우저에서 `https://<주소>/로그데이터/manifest.json` 을 직접 열어
+   내용이 보이는지 (404 면 업로드가 안 된 것)
+
+`목록갱신.bat` 과 `update_manifest.ps1` 은 로컬 전용 도구이며 GitHub 에 올리지 않아도 됩니다.
+
+> **왜 파일이 두 개인가** — Windows 명령 프롬프트는 배치 파일을 CP949 로 읽어서,
+> 배치 안에 한글이 있으면 명령이 깨집니다(`powershell` 이 `hell` 로 잘리는 식).
+> 그래서 배치는 ASCII 로만 두고 한글 처리는 `.ps1`(UTF-8 BOM)에 맡겼습니다.
+> **두 파일은 같은 폴더에 함께 있어야 합니다.**
