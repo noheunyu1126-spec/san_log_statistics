@@ -1469,6 +1469,28 @@ function rptCell(mi, g, row){
 }
 const inReport = nm => RPT_GROUPS.some(g => g.kind === "fam"
   ? g.match(nm) : g.rows.some(r => r.chanMatch(nm)));
+/* 채널이 속한 구분 이름. PNU AI 에이전트는 구분보다 채널명이 또렷해 채널명을 쓴다. */
+function groupOf(nm){
+  for (const g of RPT_GROUPS)
+    if (g.kind === "fam" ? g.match(nm) : g.rows.some(r => r.chanMatch(nm)))
+      return g.name === "PNU AI 에이전트" ? nm : g.name;
+  return "미분류";
+}
+/* PNU 도우미를 뺀 뒤에도 남는 비로그인(빈칸) 행이 어느 구분에서 오는지 */
+function anonSources(mi){
+  const S = STATE, cnt = new Map();
+  const ok = new Uint8Array(S.cidName.length);
+  for (let i = 0; i < ok.length; i++){
+    const nm = S.cidName[i];
+    ok[i] = (inReport(nm) && !sameChan(nm, EXCL_CHAN)) ? 1 : 0;
+  }
+  for (let i = 0; i < S.rowN; i++){
+    if (S.aM[i] !== mi || S.aU[i] >= 0 || !ok[S.aC[i]]) continue;
+    const g = groupOf(S.cidName[S.aC[i]]);
+    cnt.set(g, (cnt.get(g) || 0) + 1);
+  }
+  return [...cnt.entries()].sort((a, b) => b[1] - a[1]);
+}
 /* 보고서에 포함된 채널 전체 합 (계 행) */
 function rptTotal(a, b){
   const st = sliceStat(a, b, { chanMatch: inReport });
@@ -1601,12 +1623,16 @@ function renderReport(){
          + " 당월 식별 " + N(cur.uniq) + "명 + 비로그인 " + N(cur.anon) + "건."
        : "로그에 <b>식별번호 컬럼이 없어</b> 계산할 수 없습니다."
          + " 식별번호가 든 로그를 넣으면 자동 계산됩니다.");
+  const aSrc = (S.hasUid && xcur.anon) ? anonSources(mi) : [];
   if (S.hasUid)
     frow("└ PNU 도우미 제외",
          "PNU 도우미는 비로그인자도 쓸 수 있어 빈칸 행이 그대로 1명으로 잡힙니다."
        + " 당월 그 " + N(cur.anon - xcur.anon) + "건을 뺀, 로그인 사용자에 가까운 값입니다."
-       + (xcur.anon
-           ? " 빼고도 <b>행정 도우미 등에 비로그인 " + N(xcur.anon) + "건</b>이 남아 있습니다."
+       + (aSrc.length
+           ? " 빼고도 비로그인 " + N(xcur.anon) + "건이 남아 있습니다 — <b>"
+             + aSrc.slice(0, 3).map(([g, q]) => escapeHtml(g) + " " + fmt(q) + "건").join(", ")
+             + (aSrc.length > 3 ? " 외 " + (aSrc.length - 3) + "개" : "")
+             + "</b>."
            : ""));
   frow("1인당 질의 수", "질의 건 수 ÷ 이용자 수.");
   frow("증감률 · 전월 대비",
