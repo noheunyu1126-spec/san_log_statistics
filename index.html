@@ -200,6 +200,8 @@
   table.rpt td.na{color:#BFC6CE}
   table.rpt thead th .mk{color:#FFD27F;font-weight:800}
   table.rpt td .sm{font-weight:400;font-size:11px;color:var(--ink-2)}
+  table.rpt tr.subrow td{background:#fafcfe}
+  table.rpt tr.subrow td.lbl{font-weight:400;color:var(--ink-2);padding-left:14px}
   table.rpt td.names{font-weight:400;font-size:12px}
   table.rpt td.names .cn{border-bottom:1px dotted var(--ink-2);cursor:help}
   .exbox{margin-top:9px;padding:8px 10px;border-radius:6px;background:#fbf4e7;
@@ -1457,6 +1459,14 @@ function rptTotal(a, b){
   const st = sliceStat(a, b, { chanMatch: inReport });
   return { q: st.q, u: STATE.hasUid ? st.users : null, uniq: st.uniq, anon: st.anon };
 }
+/* PNU 도우미(구버전 포함)를 뺀 합.
+   PNU 도우미는 비로그인자에게도 열려 있어 빈칸 행이 그대로 사람 수로 잡힌다.
+   로그인 사용자에 가까운 값을 따로 보기 위한 것. */
+const EXCL_CHAN = "PNU 도우미";
+function rptTotalEx(a, b){
+  const st = sliceStat(a, b, { chanMatch: nm => inReport(nm) && !sameChan(nm, EXCL_CHAN) });
+  return { q: st.q, u: STATE.hasUid ? st.users : null, uniq: st.uniq, anon: st.anon };
+}
 
 const per1 = (q, u) => (u && u > 0) ? (q / u).toFixed(1) : "—";
 const pctCell = (cur, prev, ci) => {
@@ -1493,14 +1503,20 @@ function renderReport(){
 
   const cur = rptTotal(mi, mi), prev = pi >= 0 ? rptTotal(pi, pi) : null;
   const cum = rptTotal(0, mi);
+  // PNU 도우미 제외 (비로그인 빈칸 행이 사람 수로 잡히는 채널)
+  const xcur = rptTotalEx(mi, mi), xprev = pi >= 0 ? rptTotalEx(pi, pi) : null;
+  const xcum = rptTotalEx(0, mi);
 
   /* 총괄표 */
-  const r1 = (label, pick, fmtFn) =>
-    `<tr><td class="lbl sep" data-c="0">${label}</td>`
-    + `<td class="num" data-c="1">${fmtFn(cum)}</td>`
-    + `<td class="num" data-c="2">${fmtFn(cur)}</td>`
-    + `<td class="num" data-c="3">${prev ? fmtFn(prev) : "—"}</td>`
-    + pctCell(pick(cur), prev ? pick(prev) : null, 4) + "</tr>";
+  const r1 = (label, pick, fmtFn, set) => {
+    const A = set ? set.cum : cum, B = set ? set.cur : cur, C = set ? set.prev : prev;
+    return `<tr class="${set ? "subrow" : ""}"><td class="lbl sep" data-c="0">${label}</td>`
+      + `<td class="num" data-c="1">${fmtFn(A)}</td>`
+      + `<td class="num" data-c="2">${fmtFn(B)}</td>`
+      + `<td class="num" data-c="3">${C ? fmtFn(C) : "—"}</td>`
+      + pctCell(pick(B), C ? pick(C) : null, 4) + "</tr>";
+  };
+  const XSET = { cum: xcum, cur: xcur, prev: xprev };
   $("#rpt1").innerHTML =
     '<thead><tr><th style="width:26%" data-c="0">구분</th><th data-c="1">누계</th>'
     + '<th data-c="2">당월</th><th data-c="3">전월</th><th data-c="4">증감률</th></tr></thead><tbody>'
@@ -1508,6 +1524,8 @@ function renderReport(){
     + '<tr><td class="lbl sep" data-c="0">이용자 수</td><td class="na" data-c="1">—</td>'
     + '<td class="na" data-c="2">—</td><td class="na" data-c="3">—</td><td class="na" data-c="4">—</td></tr>'
     + r1("실 사용자 수", x => x.u, x => x.u == null ? "—" : fmt(x.u))
+    + r1('└ 실 사용자 수 <span class="sm">(PNU 도우미 제외)</span>',
+         x => x.u, x => x.u == null ? "—" : fmt(x.u), XSET)
     + '<tr><td class="lbl sep" data-c="0">1인당 평균 질의 수</td>'
     + `<td class="num" data-c="1">${per1(cum.q, cum.u)}</td>`
     + `<td class="num" data-c="2">${per1(cur.q, cur.u)}</td>`
@@ -1565,6 +1583,15 @@ function renderReport(){
           + ` (차이 ${fmt(Math.abs(rowUserSum - cur.u))}).`
           + ` 한 사람이 여러 모델·채널을 함께 쓰면 각 행에 들어가지만 <b>계에서는 1명</b>으로 셉니다.`
           + ` 질의 건수는 정상적으로 합산됩니다.<br>`
+        : "")
+    + (S.hasUid
+        ? "※ <b>실 사용자 수(PNU 도우미 제외)</b> — PNU 도우미는 비로그인자도 쓸 수 있어"
+          + " 식별번호가 빈칸인 행이 그대로 1명으로 잡힙니다. 로그인 사용자에 가까운 값을 따로 뒀습니다."
+          + ` 당월 PNU 도우미 비로그인 ${fmt(cur.anon - xcur.anon)}건 제외.`
+          + (xcur.anon
+              ? ` 제외 후에도 <b>행정 도우미 등에 비로그인 ${fmt(xcur.anon)}건</b>이 남아 있습니다.`
+              : "")
+          + "<br>"
         : "")
     + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미, 행정 도우미 (구버전) → 행정 도우미).<br>"
     + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
