@@ -208,10 +208,25 @@
          border:1px solid #e8d5ab;color:#6b4c14;line-height:1.7}
   .exbox b{color:#573a06}
 
-  .rptfoot{margin-top:18px;padding:13px 16px;background:#F7F9FB;
+  .rptfoot{margin-top:18px;padding:14px 16px;background:#F7F9FB;
         border-left:3px solid #C9D3DE;border-radius:0 6px 6px 0;
-        font-size:11.5px;line-height:1.9;color:var(--ink-2)}
+        font-size:11.5px;line-height:1.75;color:var(--ink-2)}
   .rptfoot b{color:var(--ink)}
+  .fnote{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;align-items:baseline}
+  .fsec{grid-column:1/-1;margin:10px 0 2px;padding-bottom:4px;font-size:10.5px;font-weight:700;
+        letter-spacing:.06em;color:var(--navy);border-bottom:1px solid #DBE4EC}
+  .fsec:first-child{margin-top:0}
+  .fk{font-weight:700;color:var(--ink)}
+  .fv{color:var(--ink-2)}
+  .fv em{font-style:normal;font-weight:700;color:var(--navy);
+         font-variant-numeric:tabular-nums}
+  .fwarn{margin-top:12px;padding:9px 12px;border-radius:6px;background:#FFF6E8;
+         border:1px solid #F0D9AE;color:#7A5410;line-height:1.75}
+  .fwarn b{color:#5C3D06}
+  @media (max-width:700px){
+    .fnote{grid-template-columns:1fr;gap:1px}
+    .fk{margin-top:7px}
+  }
   details.notes{margin-top:12px;font-size:12px;color:var(--ink-2)}
   details.notes summary{cursor:pointer;font-weight:600;color:var(--navy)}
   details.notes ul{margin:8px 0 0;padding-left:18px;line-height:1.75}
@@ -1570,45 +1585,66 @@ function renderReport(){
   // 구분 6개가 전 채널을 덮으므로 정상이면 0 건. 새 채널 유형이 생기면 여기에 잡힌다.
   const exQ = sliceStat(mi, mi, { chanMatch: nm => !inReport(nm) }).q;
   const excluded = groupChannels(mi, nm => !inReport(nm)).map(x => x[0]);
-  $("#rfoot").innerHTML =
-    "※ <b>질의 건 수</b> = 로그 행 수 (중복 제거 없음). 시각은 UTC → KST 변환 후 달력 월 기준.<br>"
-    + "※ <b>이용자 수</b>(총괄표)는 로그로 알 수 없어 비워 두었습니다. 별도 시스템 값을 넣으세요.<br>"
-    + (S.hasUid
-        ? "※ <b>실 사용자 수</b> · <b>이용자 수</b>(모델별) = 식별번호 고유 수 + 비로그인(빈칸) 행 수."
-          + ` 당월 식별 ${fmt(cur.uniq)}명 + 비로그인 ${fmt(cur.anon)}건.<br>`
-        : "※ <b>실 사용자 수</b> — 로그에 <b>식별번호 컬럼이 없어</b> 계산할 수 없습니다."
-          + " 식별번호가 포함된 로그를 넣으면 자동 계산됩니다.<br>")
-    + (cur.u != null && rowUserSum !== cur.u
-        ? `※ <b>† 이용자 수는 더해지지 않습니다.</b> 행 합계 ${fmt(rowUserSum)} ≠ 계 ${fmt(cur.u)}`
-          + ` (차이 ${fmt(Math.abs(rowUserSum - cur.u))}).`
-          + ` 한 사람이 여러 모델·채널을 함께 쓰면 각 행에 들어가지만 <b>계에서는 1명</b>으로 셉니다.`
-          + ` 질의 건수는 정상적으로 합산됩니다.<br>`
-        : "")
-    + (S.hasUid
-        ? "※ <b>실 사용자 수(PNU 도우미 제외)</b> — PNU 도우미는 비로그인자도 쓸 수 있어"
-          + " 식별번호가 빈칸인 행이 그대로 1명으로 잡힙니다. 로그인 사용자에 가까운 값을 따로 뒀습니다."
-          + ` 당월 PNU 도우미 비로그인 ${fmt(cur.anon - xcur.anon)}건 제외.`
-          + (xcur.anon
-              ? ` 제외 후에도 <b>행정 도우미 등에 비로그인 ${fmt(xcur.anon)}건</b>이 남아 있습니다.`
-              : "")
-          + "<br>"
-        : "")
-    + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미, 행정 도우미 (구버전) → 행정 도우미).<br>"
-    + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
-    + "※ <b>입학 도우미</b> · <b>Plato 도우미</b> · <b>PLATO 수업별 채널</b> · <b>기타</b> 는"
-    + " 채널이 달마다 바뀌어 <b>채널 수만</b> 적었습니다."
-    + " <b>N개 채널</b> 에 마우스를 올리면 그 달 채널과 건수가 모두 보이고,"
-    + " 엑셀로 내려받으면 목록이 칸에 그대로 들어갑니다.<br>"
-    + "※ <b>PLATO 수업별 채널</b> = 이름이 <b>과목명 / 과목코드 / 분반</b> 형식인 채널"
-    + ` (과목코드가 안 붙은 ${COURSE_NAMES.join(" · ")} 포함).<br>`
-    + "※ <b>기타</b> = 위 어느 구분에도 안 들어가는 나머지 (테스트·개발 채널, AX정보화혁신본부 도우미 등).<br>"
-    + (exQ
-        ? '<div class="exbox"><b>어느 구분에도 안 들어간 채널이 있습니다</b> — '
-          + `당월 ${excluded.length}개 · ${fmt(exQ)}건 `
-          + `(${excluded.slice(0,6).map(escapeHtml).join(", ")}`
-          + (excluded.length > 6 ? ` 외 ${excluded.length-6}개` : "")
-          + "). 분류 규칙을 확인해 주세요.</div>"
-        : "※ <b>계</b> = 당월 로그 전체입니다. 빠진 채널 없이 위 구분에 모두 들어가 있습니다.");
+  const F = [];
+  const fsec = t => F.push('<div class="fsec">' + t + '</div>');
+  const frow = (k, v) => F.push('<div class="fk">' + k + '</div><div class="fv">' + v + '</div>');
+  const N = n => '<em>' + fmt(n) + '</em>';
+
+  fsec("용어");
+  frow("질의 건 수",
+       "로그 행 수. <b>중복 제거하지 않고</b> 모든 행을 1건으로 셉니다."
+     + " 시각은 UTC → KST 로 바꾼 뒤 달력 월 기준으로 나눕니다.");
+  frow("이용자 수",
+       "로그로는 알 수 없어 <b>비워 두었습니다</b>. 별도 시스템 값을 넣으세요.");
+  frow("실 사용자 수", S.hasUid
+       ? "식별번호 고유 수 + 비로그인(빈칸) 행 수."
+         + " 당월 식별 " + N(cur.uniq) + "명 + 비로그인 " + N(cur.anon) + "건."
+       : "로그에 <b>식별번호 컬럼이 없어</b> 계산할 수 없습니다."
+         + " 식별번호가 든 로그를 넣으면 자동 계산됩니다.");
+  if (S.hasUid)
+    frow("└ PNU 도우미 제외",
+         "PNU 도우미는 비로그인자도 쓸 수 있어 빈칸 행이 그대로 1명으로 잡힙니다."
+       + " 당월 그 " + N(cur.anon - xcur.anon) + "건을 뺀, 로그인 사용자에 가까운 값입니다."
+       + (xcur.anon
+           ? " 빼고도 <b>행정 도우미 등에 비로그인 " + N(xcur.anon) + "건</b>이 남아 있습니다."
+           : ""));
+  frow("1인당 질의 수", "질의 건 수 ÷ 이용자 수.");
+  frow("증감률 · 전월 대비",
+       "증감률 = (당월 − 전월) ÷ 전월 × 100 (%) · 전월 대비 = 당월 − 전월 (건수).");
+
+  fsec("구분 기준");
+  frow("구버전 채널",
+       "<b>본 채널에 합산</b>합니다. PNU 도우미 (구버전) → PNU 도우미,"
+     + " 행정 도우미 (구버전) → 행정 도우미.");
+  frow("PLATO 수업별 채널",
+       "이름이 <b>과목명 / 과목코드 / 분반</b> 형식인 채널."
+     + " 과목코드가 안 붙은 " + COURSE_NAMES.join(" · ") + " 도 넣었습니다.");
+  frow("기타",
+       "위 어느 구분에도 안 들어가는 나머지. 테스트·개발 채널,"
+     + " AX정보화혁신본부 도우미, DB 쿼리 도우미 등.");
+  frow("N개 채널",
+       "달마다 채널이 바뀌는 구분은 <b>채널 수만</b> 적었습니다."
+     + " 그 칸에 <b>마우스를 올리면</b> 당월 채널과 건수가 모두 보이고,"
+     + " 엑셀로 내려받으면 목록이 칸에 그대로 들어갑니다.");
+  frow("계", exQ
+       ? "위 구분을 모두 더한 값."
+       : "<b>당월 로그 전체</b>입니다. 빠진 채널 없이 위 구분에 모두 들어가 있습니다.");
+
+  const W = [];
+  if (cur.u != null && rowUserSum !== cur.u)
+    W.push('<div class="fwarn"><b>† 이용자 수는 더해지지 않습니다.</b>'
+      + " 행 합계 " + fmt(rowUserSum) + " ≠ 계 " + fmt(cur.u)
+      + " (차이 " + fmt(Math.abs(rowUserSum - cur.u)) + ")."
+      + " 한 사람이 여러 모델·채널을 함께 쓰면 각 행에 들어가지만 <b>계에서는 1명</b>으로 셉니다."
+      + " 질의 건수는 정상적으로 합산됩니다.</div>");
+  if (exQ)
+    W.push('<div class="fwarn"><b>어느 구분에도 안 들어간 채널이 있습니다.</b>'
+      + " 당월 " + excluded.length + "개 · " + fmt(exQ) + "건"
+      + " (" + excluded.slice(0, 6).map(escapeHtml).join(", ")
+      + (excluded.length > 6 ? " 외 " + (excluded.length - 6) + "개" : "")
+      + "). 분류 규칙을 확인해 주세요.</div>");
+
+  $("#rfoot").innerHTML = '<div class="fnote">' + F.join("") + "</div>" + W.join("");
 }
 
 /* 월간 보고 두 표를 서식 포함 xlsx 로 */
