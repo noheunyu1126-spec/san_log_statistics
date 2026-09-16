@@ -48,7 +48,7 @@
   .chip .cnt{font-size:10px;font-weight:400;color:var(--ink-2);font-variant-numeric:tabular-nums}
   .chip .cnt b{font-weight:700}
   .chip[aria-pressed=true] .cnt{color:#dce9f5}
-  td.cid{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-2)}
+  td.cid{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-2);white-space:pre-line;line-height:1.5}
   td.mg{vertical-align:top;background:#fff;font-weight:600;
         border-bottom:1px solid var(--bd);box-shadow:inset 0 -1px 0 var(--bd)}
   #srcstat{margin-top:8px;font-size:11px;display:none}
@@ -424,6 +424,17 @@ async function readFileText(file){
 
 /* ---------- 집계 ----------
    중복 제거하지 않습니다. Chat ID 가 겹치는 행도 각각 1건으로 셉니다.       */
+/* 표시용 채널명 — 구버전 채널은 본 채널로 합쳐 보여준다.
+   "PNU 도우미 (구버전)" -> "PNU 도우미" / "행정 도우미 (구버전)" -> "행정 도우미"
+   집계 키는 여전히 채널 ID 이고, 이름만 합치므로 건수는 그대로 더해진다. */
+const MERGE_OLD = ["PNU 도우미", "행정 도우미"];
+const MO = MERGE_OLD.map(b => b.replace(/\s+/g, "") + "(구버전)");
+function dispName(nm){
+  const n = String(nm).replace(/\s+/g, "");
+  const i = MO.indexOf(n);
+  return i < 0 ? nm : MERGE_OLD[i];
+}
+
 function aggregate(tables, tzMode){
   const lastName = new Map();      // 채널 ID -> [최신ts, 채널명]
   const cells    = new Map();      // "채널ID 모델" -> {cid, model, fam, w:Map(주시작->건수), t}
@@ -550,7 +561,7 @@ function aggregate(tables, tzMode){
     const mv = new Int32Array(M);
     for (const [mk, n] of a.m) mv[mIdx.get(mk)] = n;
     a.v = v; a.mv = mv; a.w = null; a.m = null;
-    a.name = (lastName.get(a.cid) || [0, "(없음)"])[1];
+    a.name = dispName((lastName.get(a.cid) || [0, "(없음)"])[1]);
     famTot[a.fam] = (famTot[a.fam] || 0) + a.t;
     total += a.t;
     list.push(a);
@@ -564,7 +575,7 @@ function aggregate(tables, tzMode){
     aM[i] = mIdx.get(rowM[i]); aC[i] = rowC[i]; aF[i] = rowF[i]; aU[i] = rowU[i];
   }
   const cidName = new Array(cidTab.size);
-  for (const [cid, i] of cidTab) cidName[i] = (lastName.get(cid) || [0, "(없음)"])[1];
+  for (const [cid, i] of cidTab) cidName[i] = dispName((lastName.get(cid) || [0, "(없음)"])[1]);
   const famName = new Array(famTab.size);
   for (const [f, i] of famTab) famName[i] = f;
 
@@ -644,7 +655,10 @@ function buildRows(S, q, group){
   }
   const idLabel = name => {
     const all = S._chanIds.get(name);
-    return all && all.size === 1 ? [...all][0] : "";
+    if (!all) return "";
+    // 구버전 합산처럼 ID 가 2~3 개인 채널은 모두 줄바꿈해 보여주고,
+    // MCP Beta 처럼 수천 개인 채널은 비운다(일부만 뜨면 오해 소지).
+    return all.size <= 3 ? [...all].sort().join(String.fromCharCode(10)) : "";
   };
 
   let blk = 0;                     // 채널 블록 번호 (행 병합 단위)
@@ -873,6 +887,7 @@ function render(){
     `데이터 기간 ${fromTo} · 총 ${S.weeks.length}주차 / ${S.months.length}개월 · ${fmt(S.total)}건${cwTxt}`;
 
   $("#notes").innerHTML = [
+    `구버전 채널은 <b>본 채널로 합쳐</b> 보여줍니다 (PNU 도우미 (구버전) → PNU 도우미, 행정 도우미 (구버전) → 행정 도우미). 카드의 채널 수와 필터 버튼에도 합쳐진 기준이 적용됩니다.`,
     `주차: 토요일 시작 ~ 다음 주 금요일 마감. 라벨은 <b>마감 금요일이 속한 달의 N번째 금요일</b> 기준 (예: 03/28~04/03 → 4월 1주).`,
     `시간대: 원본을 <b>${S.tzMode === "utc" ? "UTC" : "KST"}</b>로 해석해 KST(UTC+9) 날짜로 집계.`,
     `<b>중복 제거하지 않습니다.</b> 모든 행을 각각 1건으로 셉니다 (읽은 행 ${fmt(S.nRaw)}건 중 Chat ID가 겹치는 행 ${fmt(S.nDupId)}건도 모두 포함).`,
@@ -958,8 +973,9 @@ function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;",
    - 셀 병합 · 틀 고정(E3) · 열 너비
    - ZIP 은 무압축(store)으로 직접 기록
    ============================================================ */
-const XQ = s => String(s).replace(/[&<>"']/g, c =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
+const XQ = s => String(s).replace(/[&<>"'\n]/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;",
+     "\n": "&#10;" }[c]));
 
 /* ---- CRC32 ---- */
 const CRC_T = (() => {
@@ -1114,9 +1130,10 @@ function exportXLSXStyled(){
 
   const hdr = (fillRgb, cur) => S.xf({ f: fWhite, fl: S.fill(fillRgb), b: cur ? bCur : bThin,
                                        al: "center", num: 0, wrap: 1 });
-  const body = (kind, cur, align, num) =>
+  const body = (kind, cur, align, num, wrap) =>
     S.xf({ f: (kind === "data" && !cur) ? fNorm : fBold, fl: rowFill[kind],
-           b: cur ? bCur : bThin, al: align, num: num ? 3 : 0 });
+           b: cur ? bCur : bThin, al: align, num: num ? 3 : 0,
+           ...(wrap ? { wrap: 1 } : {}) });
 
   const cells = [];   // {r,c,v,t,s}
   const merges = [];
@@ -1159,7 +1176,8 @@ function exportXLSXStyled(){
         if (n === 0) return;
         if (n > 1) merges.push([R, i, R + n - 1, i]);
       }
-      cells.push({ r: R, c: i, v: g || "", t: "s", s: body(r.k, false, "left", 0) });
+      const multi = i === 1 && String(g || "").indexOf(String.fromCharCode(10)) >= 0;
+      cells.push({ r: R, c: i, v: g || "", t: "s", s: body(r.k, false, "left", 0, multi) });
     });
     let t = 0;
     for (let i = 0; i < W; i++){
@@ -1453,7 +1471,7 @@ function renderReport(){
           + ` 한 사람이 여러 모델·채널을 함께 쓰면 각 행에 들어가지만 <b>계에서는 1명</b>으로 셉니다.`
           + ` 질의 건수는 정상적으로 합산됩니다.<br>`
         : "")
-    + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미).<br>"
+    + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미, 행정 도우미 (구버전) → 행정 도우미).<br>"
     + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
     + "※ <b>계</b> 는 위 표의 채널만 더한 값입니다. 보고에서 빠진 채널 "
     + `${excluded.length}개 · 당월 ${fmt(exQ)}건`
