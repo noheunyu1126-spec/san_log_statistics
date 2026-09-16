@@ -1344,14 +1344,53 @@ function sameChan(nm, base){
   return n === b || n === b + "(구버전)";
 }
 
+/* "과목명 / ZF1200535 / 001" 형태의 PLATO 수업별 채널인지
+   (구분자로 나눈 끝에서 두 번째 토막이 "영문 2자 + 숫자 7자" 과목코드) */
+function isCourseChan(nm){
+  const p = String(nm).split("/");
+  if (p.length < 3) return false;
+  const c = p[p.length - 2].trim();
+  if (c.length !== 9) return false;
+  const A = ch => ch >= "A" && ch <= "Z", D = ch => ch >= "0" && ch <= "9";
+  return A(c[0]) && A(c[1]) && D(c[2]) && D(c[3]) && D(c[4])
+      && D(c[5]) && D(c[6]) && D(c[7]) && D(c[8]);
+}
+
+/* 보고에서 아예 빼는 채널 — 입학 도우미 · Plato 계열 · PLATO 수업별 채널 */
+function isDropped(nm){
+  if (nz(nm) === "입학도우미") return true;
+  if (nz(nm).toUpperCase().indexOf("PLATO") >= 0) return true;   // Plato 도우미 · PLATO 테스트 · PLATO 활용 교육
+  return isCourseChan(nm);
+}
+
+const PNU_CHANS  = ["PNU 도우미", "행정 도우미", "학사 도우미"];
+const isMcp      = nm => nz(nm) === "MCPBeta";
+const isPnuAgent = nm => PNU_CHANS.some(c => sameChan(nm, c));
+/* 기타 = 위 두 구분에도 없고, 빼는 채널도 아닌 나머지 전부 */
+const isEtc      = nm => !isMcp(nm) && !isPnuAgent(nm) && !isDropped(nm);
+
 const RPT_GROUPS = [
   { name: "MCP Beta", kind: "fam",
-    match: nm => nz(nm) === "MCPBeta",
+    match: isMcp,
     rows: FAM_ROWS.map(f => ({ label: FAM2RPT[f], fam: f })) },
   { name: "PNU AI 에이전트", kind: "chan",
-    rows: ["PNU 도우미", "행정 도우미", "학사 도우미"].map(c =>
-      ({ label: c, chanMatch: nm => sameChan(nm, c) })) },
+    rows: PNU_CHANS.map(c => ({ label: c, chanMatch: nm => sameChan(nm, c) })) },
+  { name: "기타", kind: "chan", span2: true,
+    rows: [{ label: "기타", chanMatch: isEtc }] },
 ];
+
+/* 해당 월에 실제로 기록이 있는 기타 채널 (건수 내림차순) — 말풍선 설명용 */
+function etcChannels(mi){
+  const S = STATE, cnt = new Map();
+  const ok = new Uint8Array(S.cidName.length);
+  for (let i = 0; i < ok.length; i++) ok[i] = isEtc(S.cidName[i]) ? 1 : 0;
+  for (let i = 0; i < S.rowN; i++){
+    if (S.aM[i] !== mi || !ok[S.aC[i]]) continue;
+    const nm = S.cidName[S.aC[i]];
+    cnt.set(nm, (cnt.get(nm) || 0) + 1);
+  }
+  return [...cnt.entries()].sort((a, b) => b[1] - a[1]);
+}
 
 /* 한 칸(구분 x 행)의 월 집계 */
 function rptCell(mi, g, row){
@@ -1429,14 +1468,22 @@ function renderReport(){
   /* 모델별 이용 현황 */
   let body = "";
   let rowUserSum = 0;                 // 행별 이용자 수의 단순 합 (계와 다를 수 있음)
+  const etcList = etcChannels(mi);
+  const etcTip = etcList.length
+    ? `기타 ${etcList.length}개 채널 — `
+      + etcList.slice(0, 8).map(([n, c]) => `${n} ${fmt(c)}건`).join(", ")
+      + (etcList.length > 8 ? ` 외 ${etcList.length - 8}개` : "")
+    : "당월 기타 채널 기록 없음";
   for (const g of RPT_GROUPS){
     g.rows.forEach((row, i) => {
       const c = rptCell(mi, g, row);
       if (c.u != null) rowUserSum += c.u;
       const p = pi >= 0 ? rptCell(pi, g, row) : null;
-      body += "<tr>"
-        + (i === 0 ? `<td class="lbl grp" data-c="0" rowspan="${g.rows.length}">${escapeHtml(g.name)}</td>` : "")
-        + `<td class="lbl sep" data-c="1">${escapeHtml(row.label)}</td>`
+      const head = g.span2
+        ? `<td class="lbl grp" data-c="0" colspan="2" title="${escapeHtml(etcTip)}">${escapeHtml(g.name)}</td>`
+        : (i === 0 ? `<td class="lbl grp" data-c="0" rowspan="${g.rows.length}">${escapeHtml(g.name)}</td>` : "")
+          + `<td class="lbl sep" data-c="1">${escapeHtml(row.label)}</td>`;
+      body += "<tr>" + head
         + `<td class="num" data-c="2">${fmt(c.q)}</td>`
         + `<td class="num" data-c="3">${c.u == null ? "—" : fmt(c.u)}</td>`
         + `<td class="num" data-c="4">${per1(c.q, c.u)}</td>`
@@ -1455,8 +1502,11 @@ function renderReport(){
     + `</tr></thead><tbody>${body}</tbody>`;
 
   /* 각주 */
-  const excluded = [...new Set(S.cidName.filter(nm => !inReport(nm)))];
   const exQ = sliceStat(mi, mi, { chanMatch: nm => !inReport(nm) }).q;
+  const exSeen = new Set();
+  for (let i = 0; i < S.rowN; i++)
+    if (S.aM[i] === mi && !inReport(S.cidName[S.aC[i]])) exSeen.add(S.cidName[S.aC[i]]);
+  const excluded = [...exSeen];
   $("#rfoot").innerHTML =
     "※ <b>질의 건 수</b> = 로그 행 수 (중복 제거 없음). 시각은 UTC → KST 변환 후 달력 월 기준.<br>"
     + "※ <b>이용자 수</b>(총괄표)는 로그로 알 수 없어 비워 두었습니다. 별도 시스템 값을 넣으세요.<br>"
@@ -1473,13 +1523,19 @@ function renderReport(){
         : "")
     + "※ <b>구버전 채널은 본 채널에 합산</b>합니다 (PNU 도우미 (구버전) → PNU 도우미, 행정 도우미 (구버전) → 행정 도우미).<br>"
     + "※ 증감률 = (당월 − 전월) ÷ 전월 × 100 · 전월 대비 = 당월 − 전월 (건수).<br>"
-    + "※ <b>계</b> 는 위 표의 채널만 더한 값입니다. 보고에서 빠진 채널 "
-    + `${excluded.length}개 · 당월 ${fmt(exQ)}건`
+    + "※ <b>기타</b> = MCP Beta도 PNU AI 에이전트도 아닌 나머지 채널을 모두 모은 것입니다"
+    + (etcList.length
+        ? ` — 당월 ${etcList.length}개 채널 (${etcList.slice(0,4).map(([n]) => escapeHtml(n)).join(", ")}`
+          + (etcList.length > 4 ? ` 외 ${etcList.length-4}개` : "") + "). 행 이름에 마우스를 올리면 전체 목록이 보입니다.<br>"
+        : ".<br>")
+    + "※ 보고에서 <b>제외</b>한 채널 — <b>입학 도우미</b> · <b>Plato 도우미</b> 계열 · "
+    + "<b>PLATO 수업별 채널</b>(과목명/과목코드/분반). "
+    + `당월 ${excluded.length}개 채널 · ${fmt(exQ)}건`
     + (excluded.length
         ? ` (${excluded.slice(0,6).map(escapeHtml).join(", ")}`
           + (excluded.length > 6 ? ` 외 ${excluded.length-6}개` : "") + ")"
         : "")
-    + ".";
+    + "이 <b>계에 들어가지 않았습니다</b>.";
 }
 
 /* 월간 보고 두 표를 서식 포함 xlsx 로 */
@@ -1510,9 +1566,10 @@ function exportReportXLSX(){
       const isSum  = tr.classList.contains("sum");
       [...tr.children].forEach((cell, idx) => {
         const ci = cell.dataset.c != null ? +cell.dataset.c : idx;
-        const txt = cell.textContent.trim();
+        // 화면에만 붙는 배지(고유) 는 떼고 숫자로 내보낸다
+        const txt = cell.textContent.trim().replace("고유", "").trim();
         const plain = txt.replace(/,/g, "");
-        const isNum = ci > 0 && /^-?\d+(\.\d+)?$/.test(plain);
+        const isNum = ci > 0 && /^[+-]?\d+(\.\d+)?$/.test(plain);
         if (isHead)      put(R, ci, txt, "s", xHdr);
         else if (ci === 0) put(R, ci, txt, "s", isSum ? xSL : xLbl);
         else if (isNum)  put(R, ci, Number(plain), "n", isSum ? xSN : xNum);
@@ -1522,13 +1579,19 @@ function exportReportXLSX(){
     }
     R += 1;
   }
+  const mi2 = +$("#rmonth").value;
+  const exQ2 = sliceStat(mi2, mi2, { chanMatch: nm => !inReport(nm) }).q;
   const mLabel = $("#rmonth").selectedOptions[0].textContent;
   put(R, 0, `대상: ${GROUP} · ${mLabel}`, "s", xTit); R += 1;
   put(R, 0, STATE.hasUid
       ? "※ 실 사용자 수 = 식별번호 고유 수 + 비로그인(빈칸) 행 수 · 구버전 채널은 본 채널에 합산"
       : "※ 실 사용자 수 — 로그에 식별번호 컬럼이 없어 계산할 수 없습니다", "s", xTit);
   R += 1;
-  put(R, 0, "※ 이용자 수(총괄표)는 로그로 알 수 없어 비워 둠 · 계 = 위 표의 채널만 합산", "s", xTit);
+  put(R, 0, "※ 이용자 수(총괄표)는 로그로 알 수 없어 비워 둠 · "
+      + "기타 = MCP Beta·PNU AI 에이전트에 없는 나머지 채널", "s", xTit);
+  R += 1;
+  put(R, 0, "※ 제외한 채널 — 입학 도우미 · Plato 도우미 계열 · "
+      + `PLATO 수업별 채널(과목명/과목코드/분반) · 당월 ${fmt(exQ2)}건은 계에서 제외`, "s", xTit);
 
   const byRow = new Map();
   for (const c of cells){ if (!byRow.has(c.r)) byRow.set(c.r, []); byRow.get(c.r).push(c); }
