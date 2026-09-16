@@ -204,6 +204,13 @@
   table.rpt tr.subrow td.lbl{font-weight:400;color:var(--ink-2);padding-left:14px}
   table.rpt td.names{font-weight:400;font-size:12px}
   table.rpt td.names .cn{border-bottom:1px dotted var(--ink-2);cursor:help}
+  /* 총괄표 '전체' 열 — 계 행처럼 눈에 띄게 */
+  table.rpt th.cum{background:#173A5C}
+  table.rpt td.cum{background:#EDF3F9;font-weight:700;color:var(--navy)}
+  table.rpt th.cum,table.rpt td.cum{border-right:1px solid #C3D4E4;
+        box-shadow:inset 1px 0 0 #C3D4E4}
+  table.rpt tbody tr:hover td.cum{background:#E2ECF6}
+  table.rpt tr.subrow td.cum{background:#F4F8FC;font-weight:700}
   .exbox{margin-top:9px;padding:8px 10px;border-radius:6px;background:#fbf4e7;
          border:1px solid #e8d5ab;color:#6b4c14;line-height:1.7}
   .exbox b{color:#573a06}
@@ -1369,7 +1376,7 @@ function sliceStat(miFrom, miTo, opt){
 }
 
 /* ================= 월간 보고 탭 =================
-   총괄표            구분 | 누계 | 당월 | 전월 | 증감률
+   총괄표            구분 | 전체 | 전월 | 당월 | 전월 대비 증감률
    모델별 이용 현황   구분 | AI 모델 | 질의 건 수 | 이용자 수 | 1인당 질의 수 | 전월 대비
 
    · 이용자 수(가) : 로그로 알 수 없어 비워 둔다 (별도 시스템 값)
@@ -1535,7 +1542,7 @@ function renderReport(){
   const mi = +sel.value, pi = mi - 1;
 
   $("#rscope").innerHTML = `기간 ${S.months[mi].start} ~ ${S.months[mi].end}`
-    + ` · 누계는 ${S.months[0].start.slice(0,4)}년 ${S.months[0].l1} 부터`
+    + ` · 전체는 ${S.months[0].start.slice(0,4)}년 ${S.months[0].l1} 부터 누적`
     + (S.hasUid ? "" : ' · <b style="color:#8a1c1c">식별번호 컬럼 없음</b>');
 
   const cur = rptTotal(mi, mi), prev = pi >= 0 ? rptTotal(pi, pi) : null;
@@ -1546,27 +1553,30 @@ function renderReport(){
 
   /* 총괄표 */
   const r1 = (label, pick, fmtFn, set) => {
+    // 열 순서: 전체 · 전월 · 당월 · 전월 대비 증감률
     const A = set ? set.cum : cum, B = set ? set.cur : cur, C = set ? set.prev : prev;
     return `<tr class="${set ? "subrow" : ""}"><td class="lbl sep" data-c="0">${label}</td>`
-      + `<td class="num" data-c="1">${fmtFn(A)}</td>`
-      + `<td class="num" data-c="2">${fmtFn(B)}</td>`
-      + `<td class="num" data-c="3">${C ? fmtFn(C) : "—"}</td>`
+      + `<td class="num cum" data-c="1">${fmtFn(A)}</td>`
+      + `<td class="num" data-c="2">${C ? fmtFn(C) : "—"}</td>`
+      + `<td class="num" data-c="3">${fmtFn(B)}</td>`
       + pctCell(pick(B), C ? pick(C) : null, 4) + "</tr>";
   };
   const XSET = { cum: xcum, cur: xcur, prev: xprev };
   $("#rpt1").innerHTML =
-    '<thead><tr><th style="width:26%" data-c="0">구분</th><th data-c="1">누계</th>'
-    + '<th data-c="2">당월</th><th data-c="3">전월</th><th data-c="4">증감률</th></tr></thead><tbody>'
+    '<thead><tr><th style="width:26%" data-c="0">구분</th>'
+    + '<th class="cum" data-c="1">전체</th>'
+    + '<th data-c="2">전월</th><th data-c="3">당월</th>'
+    + '<th data-c="4">전월 대비 증감률</th></tr></thead><tbody>'
     + r1("질의 건 수", x => x.q, x => fmt(x.q))
-    + '<tr><td class="lbl sep" data-c="0">이용자 수</td><td class="na" data-c="1">—</td>'
+    + '<tr><td class="lbl sep" data-c="0">이용자 수</td><td class="na cum" data-c="1">—</td>'
     + '<td class="na" data-c="2">—</td><td class="na" data-c="3">—</td><td class="na" data-c="4">—</td></tr>'
     + r1("실 사용자 수", x => x.u, x => x.u == null ? "—" : fmt(x.u))
     + r1('└ 실 사용자 수 <span class="sm">(PNU 도우미 제외)</span>',
          x => x.u, x => x.u == null ? "—" : fmt(x.u), XSET)
     + '<tr><td class="lbl sep" data-c="0">1인당 평균 질의 수</td>'
-    + `<td class="num" data-c="1">${per1(cum.q, cum.u)}</td>`
-    + `<td class="num" data-c="2">${per1(cur.q, cur.u)}</td>`
-    + `<td class="num" data-c="3">${prev ? per1(prev.q, prev.u) : "—"}</td>`
+    + `<td class="num cum" data-c="1">${per1(cum.q, cum.u)}</td>`
+    + `<td class="num" data-c="2">${prev ? per1(prev.q, prev.u) : "—"}</td>`
+    + `<td class="num" data-c="3">${per1(cur.q, cur.u)}</td>`
     + pctCell(cur.u ? cur.q / cur.u : null, (prev && prev.u) ? prev.q / prev.u : null, 4)
     + "</tbody>";
 
@@ -1613,6 +1623,9 @@ function renderReport(){
   const N = n => '<em>' + fmt(n) + '</em>';
 
   fsec("용어");
+  frow("전체",
+       "첫 달부터 <b>선택한 달까지 누적</b>한 값입니다. 달별 값을 더한 합이 아니라"
+     + " 전 기간을 한 번에 센 값이라, 실 사용자 수는 여러 달에 걸친 같은 사람을 1명으로 셉니다.");
   frow("질의 건 수",
        "로그 행 수. <b>중복 제거하지 않고</b> 모든 행을 1건으로 셉니다."
      + " 시각은 UTC → KST 로 바꾼 뒤 달력 월 기준으로 나눕니다.");
@@ -1635,8 +1648,9 @@ function renderReport(){
              + "</b>."
            : ""));
   frow("1인당 질의 수", "질의 건 수 ÷ 이용자 수.");
-  frow("증감률 · 전월 대비",
-       "증감률 = (당월 − 전월) ÷ 전월 × 100 (%) · 전월 대비 = 당월 − 전월 (건수).");
+  frow("전월 대비 증감률",
+       "(당월 − 전월) ÷ 전월 × 100 (%)."
+     + " 모델별 표의 <b>전월 대비</b> 는 백분율이 아니라 건수 차이(당월 − 전월)입니다.");
 
   fsec("구분 기준");
   frow("구버전 채널",
